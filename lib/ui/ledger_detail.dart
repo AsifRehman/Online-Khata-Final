@@ -557,7 +557,7 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
   }
 
   getLedgerDataFromLocalDB(int iD) async {
-    dbProvider.fetchLedgerByPartyId(iD.toString()).then((value) {
+    dbProvider.fetchLedgerByPartyId(iD).then((value) {
       ledgerModelList = value;
 
       setState(() {
@@ -584,7 +584,7 @@ class LedgerItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    DateTime datetime = DateTime.fromMicrosecondsSinceEpoch(_item.date);
+    DateTime datetime = DateTime.fromMillisecondsSinceEpoch(_item.date);
     final DateFormat formatter = DateFormat('dd MMM yyyy');
     String formatted = formatter.format(datetime);
 
@@ -766,14 +766,6 @@ class LedgerItem extends StatelessWidget {
                                           0.0, 2.0, 0.0, 0.0),
                                       child: Text(
                                         formatted.toString(),
-                                        // _item.date.toString(),
-                                        // _item.date.toString(),
-                                        // getDateTimeFormat(_item.date.toString()),
-                                        //getDateTimeFormat(date.toString()),
-                                        //_item.date.toString(),
-                                        // getDateTimeFormat(d.toString()),
-                                        //   DateTime.fromMillisecondsSinceEpoch(_item.data["Date"] ).toString(),
-                                        // getDateTimeFormat(d.toString()),
                                         textAlign: TextAlign.right,
                                         maxLines: 1,
                                         softWrap: true,

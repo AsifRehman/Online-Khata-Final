@@ -125,7 +125,6 @@ class DbProvider {
         tType: v['TType'].toString(),
         description: v['Description'].toString(),
         date: getDateTimeLedgerFormat(v['Date']),
-        // date: 19939389822,
         debit: isKyNotNull(v['Debit']) ? v['Debit'] : 0,
         credit: isKyNotNull(v['Credit']) ? v['Credit'] : 0,
         ts: v['ts'],
@@ -279,7 +278,7 @@ class DbProvider {
     });
   }
 
-  Future<List<LedgerModel>> fetchLedgerByPartyId(String partyId) async {
+  Future<List<LedgerModel>> fetchLedgerByPartyId(int partyId) async {
     //returns the Categories as a list (array)
 
     final sqliteDb = await init();

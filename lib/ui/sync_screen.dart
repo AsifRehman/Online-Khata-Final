@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:onlinekhata/ui/home_screen.dart';
 
@@ -22,9 +23,18 @@ class _SyncScreenState extends State<SyncScreen> {
   List<PartyModel> partyModelList = [];
 
   bool viewHomeBtn = false;
+  String lastSyncDate = "";
 
   @override
   void initState() {
+    getLastSyncDateTime().then((value) {
+      if (value != null) {
+        setState(() {
+          lastSyncDate = value;
+        });
+      }
+    });
+
     getLocalDb().then((value) {
       if (value != null && value == true) {
         setState(() {
@@ -47,6 +57,25 @@ class _SyncScreenState extends State<SyncScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      (lastSyncDate!=null &&lastSyncDate!='') ? Container(
+                        margin: EdgeInsets.fromLTRB(0.0, 0, 0.0, 20.0),
+
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                                margin: EdgeInsets.fromLTRB(0.0, 0, 0.0, 0.0),
+
+                                child: Text("Last Sync Date: ",style: TextStyle(color: Colors.white),)
+                            ),
+                            Container(
+                              margin: EdgeInsets.fromLTRB(4.0, 0, 0.0, 0.0),
+
+                              child: Text(lastSyncDate,style: TextStyle(color: Colors.white),)
+                            ),
+                          ],
+                        ),
+                      ):Container(),
                       HomeButton(viewHomeBtn: viewHomeBtn),
                       GestureDetector(
                         onTap: () {
@@ -161,9 +190,12 @@ class _SyncScreenState extends State<SyncScreen> {
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         await getLedgerData().then((value) {
           setLocalDb(true);
+          String dateTime= getCurrentDateTime();
+          setLastSyncDateTime(dateTime);
           setState(() {
             loading = false;
             viewHomeBtn = true;
+            lastSyncDate = dateTime;
           });
           showDialog(
               context: context,
@@ -208,9 +240,14 @@ class _SyncScreenState extends State<SyncScreen> {
     }
   }
 
-  // int getDateTimeFormat(Timestamp date) {
-  //   return date.microsecondsSinceEpoch;
-  // }
+  String getCurrentDateTime() {
+    DateTime now = DateTime.now();
+    String formattedDate = DateFormat('dd MMM yyyy h:mm a').format(now);
+    return formattedDate;
+  }
+// int getDateTimeFormat(Timestamp date) {
+//   return date.microsecondsSinceEpoch;
+// }
 }
 
 class HomeButton extends StatelessWidget {

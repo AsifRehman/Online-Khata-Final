@@ -48,9 +48,9 @@ generatePdfReport(context, String partName, List<LedgerModel> list,
         isKyNotNull(list[i].credit) ? totalBal - list[i].credit : totalBal;
 
     ledgerList.add(new ReportModel(
-        isKeyNotNull(list[i].vocNo) ? list[i].vocNo : 0,
+        isKyNotNull(list[i].vocNo) ? list[i].vocNo : 0,
         isKeyNotNull(list[i].tType) ? list[i].tType : "",
-        isKeyNotNull(list[i].date) ? getDateTimeFormat(list[i].date) : "",
+        isKyNotNull(list[i].date) ? getDateTimeFormat(list[i].date) : "",
         isKeyNotNull(list[i].description) ? list[i].description : "",
         isKyNotNull(list[i].debit) ? list[i].debit : 0,
         isKyNotNull(list[i].credit) ? list[i].credit : 0,
@@ -304,7 +304,7 @@ generatePdfReport(context, String partName, List<LedgerModel> list,
 }
 
 String getDateTimeFormat(int date) {
-  DateTime datetime = DateTime.fromMicrosecondsSinceEpoch(date);
+  DateTime datetime = DateTime.fromMillisecondsSinceEpoch(date);
   final DateFormat formatter = DateFormat('dd MMM yyyy');
   String formatted = formatter.format(datetime);
 

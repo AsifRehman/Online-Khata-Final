@@ -269,7 +269,7 @@ class PartiesItem extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              isKeyNotNull(_item.debit.toString())
+                              isKeyNotNullAndZero(_item.debit)
                                   ? Container(
                                       margin: EdgeInsets.fromLTRB(
                                           7.0, 3.0, 3.0, 0.0),
@@ -286,7 +286,22 @@ class PartiesItem extends StatelessWidget {
                                         ),
                                       ),
                                     )
-                                  : Container(),
+                                  : Container(
+                                margin: EdgeInsets.fromLTRB(
+                                    7.0, 3.0, 3.0, 0.0),
+                                child: Text(
+                                  'RS 0' ,
+                                  textAlign: TextAlign.right,
+                                  maxLines: 1,
+                                  softWrap: true,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                           Row(
@@ -307,7 +322,7 @@ class PartiesItem extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              isKeyNotNull(_item.credit.toString())
+                              isKeyNotNullAndZero(_item.credit)
                                   ? Container(
                                       margin: EdgeInsets.fromLTRB(
                                           3.0, 3.0, 3.0, 0.0),
@@ -324,11 +339,26 @@ class PartiesItem extends StatelessWidget {
                                         ),
                                       ),
                                     )
-                                  : Container(),
+                                  : Container(
+                                margin: EdgeInsets.fromLTRB(
+                                    3.0, 3.0, 3.0, 0.0),
+                                child: Text(
+                                  'RS 0',
+                                  textAlign: TextAlign.right,
+                                  maxLines: 1,
+                                  softWrap: true,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: Colors.green,
+                                    fontSize: 12.5,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                         ],
-                      ),
+                      )
                     ),
                   ),
                   Column(
@@ -381,4 +411,13 @@ class PartiesItem extends StatelessWidget {
     else
       return false;
   }
+
+
+  bool isKeyNotNullAndZero(Object param1) {
+    if (param1 != null && param1 !=0 )
+      return true;
+    else
+      return false;
+  }
+
 }

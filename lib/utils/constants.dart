@@ -1,4 +1,5 @@
 import 'package:intl/intl.dart';
+import 'package:mongo_dart/mongo_dart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 SharedPreferences sharedPreferences;
@@ -21,6 +22,18 @@ Future<bool> getLocalDb() async {
   return sharedPreferences.getBool("localDb");
 }
 
+setLastSyncDateTime(String lastSyncDateTime) async {
+  sharedPreferences = await SharedPreferences.getInstance();
+  sharedPreferences.setString("lastSyncDateTime", lastSyncDateTime);
+  // ignore: deprecated_member_use
+  sharedPreferences.commit();
+}
+
+Future<String> getLastSyncDateTime() async {
+  sharedPreferences = await SharedPreferences.getInstance();
+  return sharedPreferences.getString("lastSyncDateTime");
+}
+
 String getDateTimeFormat(String date) {
   final DateTime now = DateTime.parse(date);
   // final DateFormat formatter = DateFormat('dd MMM yyyy h:mm a');
@@ -31,7 +44,8 @@ String getDateTimeFormat(String date) {
 }
 
 int getDateTimeLedgerFormat(DateTime date) {
-  int milliseconds = date.millisecondsSinceEpoch;
+
+  int milliseconds =  date.millisecondsSinceEpoch;
 
   return milliseconds;
 }
