@@ -9,6 +9,7 @@ import 'package:onlinekhata/mongo_db/db_connection.dart';
 import 'package:onlinekhata/sqflite_database/DbProvider.dart';
 import 'package:onlinekhata/sqflite_database/model/PartyModel.dart';
 import 'package:onlinekhata/utils/constants.dart';
+import 'package:onlinekhata/utils/custom_loader_dialog.dart';
 
 class SyncScreen extends StatefulWidget {
   static String id = 'sync_screen';
@@ -50,94 +51,93 @@ class _SyncScreenState extends State<SyncScreen> {
     return SafeArea(
         child: Scaffold(
             backgroundColor: Colors.blue,
-            body: ModalProgressHUD(
-                inAsyncCall: loading,
-                child: Container(
-                  margin: EdgeInsets.fromLTRB(0.0, 0, 0.0, 5.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      (lastSyncDate!=null &&lastSyncDate!='') ? Container(
-                        margin: EdgeInsets.fromLTRB(0.0, 0, 0.0, 20.0),
+            body: Container(
+              margin: EdgeInsets.fromLTRB(0.0, 0, 0.0, 5.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  (lastSyncDate!=null &&lastSyncDate!='') ? Container(
+                    margin: EdgeInsets.fromLTRB(0.0, 0, 0.0, 20.0),
 
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                                margin: EdgeInsets.fromLTRB(0.0, 0, 0.0, 0.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                            margin: EdgeInsets.fromLTRB(0.0, 0, 0.0, 0.0),
 
-                                child: Text("Last Sync Date: ",style: TextStyle(color: Colors.white),)
-                            ),
-                            Container(
-                              margin: EdgeInsets.fromLTRB(4.0, 0, 0.0, 0.0),
-
-                              child: Text(lastSyncDate,style: TextStyle(color: Colors.white),)
-                            ),
-                          ],
+                            child: Text("Last Sync Date: ",style: TextStyle(color: Colors.white),)
                         ),
-                      ):Container(),
-                      HomeButton(viewHomeBtn: viewHomeBtn),
-                      GestureDetector(
-                        onTap: () {
-                          getPartiesFromServer();
-                        },
-                        child: Container(
-                          margin: EdgeInsets.fromLTRB(20.0, 15, 20.0, 0.0),
-                          height: 40,
-                          padding: const EdgeInsets.all(5.0),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.white),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image.asset("assets/ic_synchronize.png",
-                                  width: 18, height: 18, color: Colors.white),
-                              Container(
-                                  margin:
-                                      EdgeInsets.fromLTRB(5.0, 0, 12.0, 0.0),
-                                  child: Text(
-                                    'Sync Data',
-                                    style: TextStyle(color: Colors.white),
-                                  )),
-                            ],
-                          ),
+                        Container(
+                          margin: EdgeInsets.fromLTRB(4.0, 0, 0.0, 0.0),
+
+                          child: Text(lastSyncDate,style: TextStyle(color: Colors.white),)
                         ),
+                      ],
+                    ),
+                  ):Container(),
+                  HomeButton(viewHomeBtn: viewHomeBtn),
+                  GestureDetector(
+                    onTap: () {
+                      showLoaderDialog(context);
+                      getPartiesFromServer();
+                    },
+                    child: Container(
+                      margin: EdgeInsets.fromLTRB(20.0, 15, 20.0, 0.0),
+                      height: 40,
+                      padding: const EdgeInsets.all(5.0),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.white),
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      GestureDetector(
-                        onTap: () async {
-                          DbProvider dbProvider = DbProvider();
-                          var result = await dbProvider.fetchParties();
-                          print(result);
-                        },
-                        child: Container(
-                          margin: EdgeInsets.fromLTRB(20.0, 15, 20.0, 0.0),
-                          height: 40,
-                          padding: const EdgeInsets.all(5.0),
-                          decoration: BoxDecoration(
-                            border: Border.all(color: Colors.white),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Image.asset("assets/ic_synchronize.png",
-                                  width: 18, height: 18, color: Colors.white),
-                              Container(
-                                  margin:
-                                      EdgeInsets.fromLTRB(5.0, 0, 12.0, 0.0),
-                                  child: Text(
-                                    'Print Ledger Data',
-                                    style: TextStyle(color: Colors.white),
-                                  )),
-                            ],
-                          ),
-                        ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset("assets/ic_synchronize.png",
+                              width: 18, height: 18, color: Colors.white),
+                          Container(
+                              margin:
+                                  EdgeInsets.fromLTRB(5.0, 0, 12.0, 0.0),
+                              child: Text(
+                                'Sync Data',
+                                style: TextStyle(color: Colors.white),
+                              )),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                ))));
+                  GestureDetector(
+                    onTap: () async {
+                      DbProvider dbProvider = DbProvider();
+                      var result = await dbProvider.fetchParties();
+                      print(result);
+                    },
+                    child: Container(
+                      margin: EdgeInsets.fromLTRB(20.0, 15, 20.0, 0.0),
+                      height: 40,
+                      padding: const EdgeInsets.all(5.0),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.white),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset("assets/ic_synchronize.png",
+                              width: 18, height: 18, color: Colors.white),
+                          Container(
+                              margin:
+                                  EdgeInsets.fromLTRB(5.0, 0, 12.0, 0.0),
+                              child: Text(
+                                'Print Ledger Data',
+                                style: TextStyle(color: Colors.white),
+                              )),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )));
   }
 
   getPartiesFromServer() async {
@@ -197,6 +197,8 @@ class _SyncScreenState extends State<SyncScreen> {
             viewHomeBtn = true;
             lastSyncDate = dateTime;
           });
+          Navigator.pop(context);
+
           showDialog(
               context: context,
               barrierDismissible: false,
@@ -245,6 +247,16 @@ class _SyncScreenState extends State<SyncScreen> {
     String formattedDate = DateFormat('dd MMM yyyy h:mm a').format(now);
     return formattedDate;
   }
+
+  showLoaderDialog(BuildContext context){
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) => CustomLoaderDialog(
+          title: "Loading..."),
+    );
+  }
+
 // int getDateTimeFormat(Timestamp date) {
 //   return date.microsecondsSinceEpoch;
 // }

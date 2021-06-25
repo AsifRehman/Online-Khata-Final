@@ -7,6 +7,7 @@ import 'package:onlinekhata/sqflite_database/DbProvider.dart';
 import 'package:onlinekhata/sqflite_database/model/LedgerModel.dart';
 import 'package:onlinekhata/ui/pdf_viewer/report_pdf.dart';
 import 'package:onlinekhata/utils/constants.dart';
+import 'package:onlinekhata/utils/custom_loader_dialog.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class LedgerDetailScreen extends StatefulWidget {
@@ -35,6 +36,7 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
   List<dynamic> dateEnd = ["2021-05-25 19:02:51.000Z"];
   DbProvider dbProvider = DbProvider();
   List<LedgerModel> ledgerModelList = [];
+  bool _checkConfiguration() => true;
 
   _LedgerDetailScreenState({this.iD, this.partName});
 
@@ -51,12 +53,18 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
   void initState() {
     getLocalDb().then((value) {
       if (value != null && value == true) {
+
+
+        if (_checkConfiguration()) {
+          Future.delayed(Duration.zero,() {
+            showLoaderDialog(context);
+
+          });
+        }
         getLedgerDataFromLocalDB(widget.iD);
       }
     });
 
-    // getLedger(widget.ID);
-    //  getLedgerByDateWise(widget.ID);
     super.initState();
   }
 
@@ -66,496 +74,491 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
     final width = size.width;
     return SafeArea(
       child: Scaffold(
-        body: ModalProgressHUD(
-          inAsyncCall: loading,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              Container(
-                height: 60,
+        body: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: <Widget>[
+            Container(
+              height: 60,
+              margin: EdgeInsets.fromLTRB(0.0, 0, 0.0, 0.0),
+              width: MediaQuery.of(context).size.width - 1,
+              color: Colors.blue,
+              child: Container(
                 margin: EdgeInsets.fromLTRB(0.0, 0, 0.0, 0.0),
-                width: MediaQuery.of(context).size.width - 1,
-                color: Colors.blue,
-                child: Container(
-                  margin: EdgeInsets.fromLTRB(0.0, 0, 0.0, 0.0),
-                  child: Row(
-                    children: <Widget>[
-                      Container(
-                        margin: EdgeInsets.fromLTRB(5.0, 0, 0.0, 0.0),
-                        child: new IconButton(
-                          icon: Image.asset(
-                            'assets/ic_back.png',
-                            width: 40,
-                            height: 40,
-                            color: Colors.white,
-                          ),
-                          onPressed: () => Navigator.of(context).pop(),
-                        ),
-                      ),
-                      Container(
-                        width: width * 0.7,
-                        margin: EdgeInsets.fromLTRB(10.0, 0, 0.0, 0.0),
-                        child: new Text(
-                          partName,
-                          maxLines: 2,
-                          softWrap: true,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 19,
-                            color: Colors.white,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                      ),
-
-                      // Container(
-                      //   width: 30,
-                      //   height: 30,
-                      //   margin: EdgeInsets.fromLTRB(5.0, 0, 0.0, 0.0),
-                      //   child: Image.asset("assets/ic_calendar.png")
-                      // ),
-                    ],
-                  ),
-                ),
-              ),
-              Container(
-                margin: EdgeInsets.fromLTRB(15.0, 15.0, 12.0, 10.0),
-                color: Colors.black12,
-                height: 39,
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
+                  children: <Widget>[
                     Container(
-                      margin: EdgeInsets.fromLTRB(4.0, 0.0, 0.0, 0.0),
-                      width: MediaQuery.of(context).size.width * 0.5,
-                      child: Text(
-                        "Ledger Detail",
-                        maxLines: 1,
+                      margin: EdgeInsets.fromLTRB(5.0, 0, 0.0, 0.0),
+                      child: new IconButton(
+                        icon: Image.asset(
+                          'assets/ic_back.png',
+                          width: 40,
+                          height: 40,
+                          color: Colors.white,
+                        ),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ),
+                    Container(
+                      width: width * 0.7,
+                      margin: EdgeInsets.fromLTRB(10.0, 0, 0.0, 0.0),
+                      child: new Text(
+                        partName,
+                        maxLines: 2,
                         softWrap: true,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
+                          fontSize: 19,
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
                     ),
-                    Container(
-                      width: MediaQuery.of(context).size.width * 0.2,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            child: Text(
-                              "Will Receive",
-                              maxLines: 2,
-                              softWrap: true,
-                              textAlign: TextAlign.center,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
-                          ledgerModelList == null || ledgerModelList.length == 0
-                              ? Container()
-                              : Container(
-                                  child: Text(
-                                    "RS " + totalCredit.toString(),
-                                    maxLines: 2,
-                                    softWrap: true,
-                                    textAlign: TextAlign.center,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      color: Colors.green,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                                  ),
-                                ),
-                        ],
-                      ),
-                    ),
-                    Container(
-                      width: MediaQuery.of(context).size.width * 0.2,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(
-                            child: Text(
-                              "You Gave",
-                              maxLines: 2,
-                              softWrap: true,
-                              textAlign: TextAlign.center,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                color: Colors.black,
-                                fontSize: 13,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
-                          ledgerModelList == null || ledgerModelList.length == 0
-                              ? Container()
-                              : Container(
-                                  child: Text(
-                                    "RS " + totalDebit.toString(),
-                                    maxLines: 2,
-                                    softWrap: true,
-                                    textAlign: TextAlign.center,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      color: Colors.red,
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w800,
-                                    ),
-                                  ),
-                                ),
-                        ],
-                      ),
-                    ),
+
                   ],
                 ),
               ),
-              Expanded(
-                child: loading == true
-                    ? Container()
-                    : ledgerModelList == null
-                        ? Center(
-                            child: Text('No record found.'),
-                          )
-                        : ledgerModelList.length == 0
-                            ? Center(
-                                child: Text('No record found.'),
-                              )
-                            : new ListView.builder(
-                                //  controller: scrollController,
-                                itemCount: ledgerModelList.length,
-                                scrollDirection: Axis.vertical,
-                                shrinkWrap: true,
-                                itemBuilder: (BuildContext context, int index) {
-                                  return new InkWell(
-                                    child: new LedgerItem(
-                                        ledgerModelList[index], index),
-                                  );
-                                },
-                              ),
-              ),
-              ledgerModelList != null && ledgerModelList.length > 0
-                  ? Container(
-                      margin: EdgeInsets.fromLTRB(0.0, 0, 0.0, 5.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          GestureDetector(
-                            onTap: () async {
-                              var status = await Permission.storage.status;
-                              try {
-                                if (await Permission.storage
-                                    .request()
-                                    .isGranted) {
-                                  generatePdfReport(context, widget.partName,
-                                      ledgerModelList, "from_view");
-                                } else {
-                                  if (status.isPermanentlyDenied) {
-                                    // The user opted to never again see the permission request dialog for this
-                                    // app. The only way to change the permission's status now is to let the
-                                    // user manually enable it in the system settings.
-                                    showDialog(
-                                        context: context,
-                                        barrierDismissible: false,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            title: new Text("Alert"),
-                                            content: new Text(
-                                                "Please grant Storage permission from settings."),
-                                            actions: <Widget>[
-                                              new TextButton(
-                                                child: new Text('OK'),
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                  openAppSettings();
-                                                },
-                                              ),
-                                            ],
-                                          );
-                                        });
-                                  }
-                                  // You can can also directly ask the permission about its status.
-                                  else if (status.isRestricted) {
-                                    // The OS restricts access, for example because of parental controls.
-                                    showDialog(
-                                        context: context,
-                                        barrierDismissible: false,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            title: new Text("Alert"),
-                                            content: new Text(
-                                                "Please grant Storage  permission from settings."),
-                                            actions: <Widget>[
-                                              new TextButton(
-                                                child: new Text('OK'),
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                },
-                                              ),
-                                            ],
-                                          );
-                                        });
-                                  } else if (status.isDenied) {
-                                    // The OS restricts access, for example because of parental controls.
-                                    showDialog(
-                                        context: context,
-                                        barrierDismissible: false,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            title: new Text("Alert"),
-                                            content: new Text(
-                                                "Please grant Storage permission from settings."),
-                                            actions: <Widget>[
-                                              new TextButton(
-                                                child: new Text('OK'),
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                },
-                                              ),
-                                            ],
-                                          );
-                                        });
-                                  } else if (e.toString().contains(
-                                      'The getter \'path\' was called on null')) {
-                                    return;
-                                  } else {
-                                    showDialog(
-                                        context: context,
-                                        barrierDismissible: false,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            title: new Text("Alert"),
-                                            content: new Text(
-                                                "Please grant Storage  permission from settings."),
-                                            actions: <Widget>[
-                                              new TextButton(
-                                                child: new Text('OK'),
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                },
-                                              ),
-                                            ],
-                                          );
-                                        });
-                                  }
-                                }
-                              } catch (e) {
-                                showDialog(
-                                    context: context,
-                                    barrierDismissible: false,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: new Text("Alert"),
-                                        content: new Text(
-                                            "Please grant Storage  permission from settings."),
-                                        actions: <Widget>[
-                                          new TextButton(
-                                            child: new Text('OK'),
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            },
-                                          ),
-                                        ],
-                                      );
-                                    });
-                              }
-                            },
-                            child: Container(
-                              width: width * 0.45,
-                              height: 35,
-                              margin: const EdgeInsets.all(5.0),
-                              padding: const EdgeInsets.all(5.0),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.blueAccent),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Image.asset("assets/ic_view.png",
-                                      width: 18,
-                                      height: 18,
-                                      color: Colors.blueAccent),
-                                  Container(
-                                      margin:
-                                          EdgeInsets.fromLTRB(5.0, 0, 0.0, 0.0),
-                                      child: Text(
-                                        'Downlaod PDF',
-                                        style:
-                                            TextStyle(color: Colors.blueAccent),
-                                      )),
-                                ],
-                              ),
-                            ),
-                          ),
-                          GestureDetector(
-                            onTap: () async {
-                              var status = await Permission.storage.status;
-                              try {
-                                if (await Permission.storage
-                                    .request()
-                                    .isGranted) {
-                                  generatePdfReport(context, widget.partName,
-                                      ledgerModelList, "from_share");
-                                } else {
-                                  if (status.isPermanentlyDenied) {
-                                    // The user opted to never again see the permission request dialog for this
-                                    // app. The only way to change the permission's status now is to let the
-                                    // user manually enable it in the system settings.
-                                    showDialog(
-                                        context: context,
-                                        barrierDismissible: false,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            title: new Text("Alert"),
-                                            content: new Text(
-                                                "Please grant Storage permission from settings."),
-                                            actions: <Widget>[
-                                              new TextButton(
-                                                child: new Text('OK'),
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                  openAppSettings();
-                                                },
-                                              ),
-                                            ],
-                                          );
-                                        });
-                                  }
-                                  // You can can also directly ask the permission about its status.
-                                  else if (status.isRestricted) {
-                                    // The OS restricts access, for example because of parental controls.
-                                    showDialog(
-                                        context: context,
-                                        barrierDismissible: false,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            title: new Text("Alert"),
-                                            content: new Text(
-                                                "Please grant Storage  permission from settings."),
-                                            actions: <Widget>[
-                                              new TextButton(
-                                                child: new Text('OK'),
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                },
-                                              ),
-                                            ],
-                                          );
-                                        });
-                                  } else if (status.isDenied) {
-                                    // The OS restricts access, for example because of parental controls.
-                                    showDialog(
-                                        context: context,
-                                        barrierDismissible: false,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            title: new Text("Alert"),
-                                            content: new Text(
-                                                "Please grant Storage permission from settings."),
-                                            actions: <Widget>[
-                                              new TextButton(
-                                                child: new Text('OK'),
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                },
-                                              ),
-                                            ],
-                                          );
-                                        });
-                                  } else if (e.toString().contains(
-                                      'The getter \'path\' was called on null')) {
-                                    return;
-                                  } else {
-                                    showDialog(
-                                        context: context,
-                                        barrierDismissible: false,
-                                        builder: (BuildContext context) {
-                                          return AlertDialog(
-                                            title: new Text("Alert"),
-                                            content: new Text(
-                                                "Please grant Storage  permission from settings."),
-                                            actions: <Widget>[
-                                              new TextButton(
-                                                child: new Text('OK'),
-                                                onPressed: () {
-                                                  Navigator.pop(context);
-                                                },
-                                              ),
-                                            ],
-                                          );
-                                        });
-                                  }
-                                }
-                              } catch (e) {
-                                showDialog(
-                                    context: context,
-                                    barrierDismissible: false,
-                                    builder: (BuildContext context) {
-                                      return AlertDialog(
-                                        title: new Text("Alert"),
-                                        content: new Text(
-                                            "Please grant Storage  permission from settings."),
-                                        actions: <Widget>[
-                                          new TextButton(
-                                            child: new Text('OK'),
-                                            onPressed: () {
-                                              Navigator.pop(context);
-                                            },
-                                          ),
-                                        ],
-                                      );
-                                    });
-                              }
-                            },
-                            child: Container(
-                              width: width * 0.45,
-                              height: 35,
-                              margin: const EdgeInsets.all(5.0),
-                              padding: const EdgeInsets.all(5.0),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: Colors.blueAccent),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Image.asset("assets/ic_share.png",
-                                      width: 18,
-                                      height: 18,
-                                      color: Colors.blueAccent),
-                                  Container(
-                                      margin:
-                                          EdgeInsets.fromLTRB(5.0, 0, 0.0, 0.0),
-                                      child: Text(
-                                        'Share',
-                                        style:
-                                            TextStyle(color: Colors.blueAccent),
-                                      )),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ],
+            ),
+            Container(
+              margin: EdgeInsets.fromLTRB(15.0, 15.0, 12.0, 10.0),
+              color: Colors.black12,
+              height: 45,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Container(
+                    margin: EdgeInsets.fromLTRB(4.0, 0.0, 0.0, 0.0),
+                    width: MediaQuery.of(context).size.width * 0.5,
+                    child: Text(
+                      "Ledger Detail",
+                      maxLines: 1,
+                      softWrap: true,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
                       ),
-                    )
-                  : Container()
-            ],
-          ),
+                    ),
+                  ),
+                  Container(
+                    width: MediaQuery.of(context).size.width * 0.2,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          child: Text(
+                            "Will Receive",
+                            textAlign: TextAlign.center,
+
+                            maxLines: 2,
+                            softWrap: true,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        ledgerModelList == null || ledgerModelList.length == 0
+                            ? Container()
+                            : Container(
+                                child: Text(
+                                  "RS " + totalCredit.toString(),
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.green,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    width: MediaQuery.of(context).size.width * 0.2,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          child: Text(
+                            "You Gave",
+                            maxLines: 2,
+                            softWrap: true,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ),
+                        ledgerModelList == null || ledgerModelList.length == 0
+                            ? Container()
+                            : Container(
+                                child: Text(
+                                  "RS " + totalDebit.toString(),
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Expanded(
+              child: loading == true
+                  ? Container()
+                  : ledgerModelList == null
+                      ? Center(
+                          child: Text('No record found.'),
+                        )
+                      : ledgerModelList.length == 0
+                          ? Center(
+                              child: Text('No record found.'),
+                            )
+                          : new ListView.builder(
+                              //  controller: scrollController,
+                              itemCount: ledgerModelList.length,
+                              scrollDirection: Axis.vertical,
+                              shrinkWrap: true,
+                              itemBuilder: (BuildContext context, int index) {
+                                return new InkWell(
+                                  child: new LedgerItem(
+                                      ledgerModelList[index], index),
+                                );
+                              },
+                            ),
+            ),
+            ledgerModelList != null && ledgerModelList.length > 0
+                ? Container(
+                    margin: EdgeInsets.fromLTRB(0.0, 0, 0.0, 5.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        GestureDetector(
+                          onTap: () async {
+                            var status = await Permission.storage.status;
+                            try {
+                              if (await Permission.storage
+                                  .request()
+                                  .isGranted) {
+                                generatePdfReport(context, widget.partName,
+                                    ledgerModelList, "from_view");
+                              } else {
+                                if (status.isPermanentlyDenied) {
+                                  // The user opted to never again see the permission request dialog for this
+                                  // app. The only way to change the permission's status now is to let the
+                                  // user manually enable it in the system settings.
+                                  showDialog(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: new Text("Alert"),
+                                          content: new Text(
+                                              "Please grant Storage permission from settings."),
+                                          actions: <Widget>[
+                                            new TextButton(
+                                              child: new Text('OK'),
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                                openAppSettings();
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      });
+                                }
+                                // You can can also directly ask the permission about its status.
+                                else if (status.isRestricted) {
+                                  // The OS restricts access, for example because of parental controls.
+                                  showDialog(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: new Text("Alert"),
+                                          content: new Text(
+                                              "Please grant Storage  permission from settings."),
+                                          actions: <Widget>[
+                                            new TextButton(
+                                              child: new Text('OK'),
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      });
+                                } else if (status.isDenied) {
+                                  // The OS restricts access, for example because of parental controls.
+                                  showDialog(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: new Text("Alert"),
+                                          content: new Text(
+                                              "Please grant Storage permission from settings."),
+                                          actions: <Widget>[
+                                            new TextButton(
+                                              child: new Text('OK'),
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      });
+                                } else if (e.toString().contains(
+                                    'The getter \'path\' was called on null')) {
+                                  return;
+                                } else {
+                                  showDialog(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: new Text("Alert"),
+                                          content: new Text(
+                                              "Please grant Storage  permission from settings."),
+                                          actions: <Widget>[
+                                            new TextButton(
+                                              child: new Text('OK'),
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      });
+                                }
+                              }
+                            } catch (e) {
+                              showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: new Text("Alert"),
+                                      content: new Text(
+                                          "Please grant Storage  permission from settings."),
+                                      actions: <Widget>[
+                                        new TextButton(
+                                          child: new Text('OK'),
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                        ),
+                                      ],
+                                    );
+                                  });
+                            }
+                          },
+                          child: Container(
+                            width: width * 0.45,
+                            height: 35,
+                            margin: const EdgeInsets.all(5.0),
+                            padding: const EdgeInsets.all(5.0),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.blueAccent),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Image.asset("assets/ic_view.png",
+                                    width: 18,
+                                    height: 18,
+                                    color: Colors.blueAccent),
+                                Container(
+                                    margin:
+                                        EdgeInsets.fromLTRB(5.0, 0, 0.0, 0.0),
+                                    child: Text(
+                                      'Downlaod PDF',
+                                      style:
+                                          TextStyle(color: Colors.blueAccent),
+                                    )),
+                              ],
+                            ),
+                          ),
+                        ),
+                        GestureDetector(
+                          onTap: () async {
+                            var status = await Permission.storage.status;
+                            try {
+                              if (await Permission.storage
+                                  .request()
+                                  .isGranted) {
+                                generatePdfReport(context, widget.partName,
+                                    ledgerModelList, "from_share");
+                              } else {
+                                if (status.isPermanentlyDenied) {
+                                  // The user opted to never again see the permission request dialog for this
+                                  // app. The only way to change the permission's status now is to let the
+                                  // user manually enable it in the system settings.
+                                  showDialog(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: new Text("Alert"),
+                                          content: new Text(
+                                              "Please grant Storage permission from settings."),
+                                          actions: <Widget>[
+                                            new TextButton(
+                                              child: new Text('OK'),
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                                openAppSettings();
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      });
+                                }
+                                // You can can also directly ask the permission about its status.
+                                else if (status.isRestricted) {
+                                  // The OS restricts access, for example because of parental controls.
+                                  showDialog(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: new Text("Alert"),
+                                          content: new Text(
+                                              "Please grant Storage  permission from settings."),
+                                          actions: <Widget>[
+                                            new TextButton(
+                                              child: new Text('OK'),
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      });
+                                } else if (status.isDenied) {
+                                  // The OS restricts access, for example because of parental controls.
+                                  showDialog(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: new Text("Alert"),
+                                          content: new Text(
+                                              "Please grant Storage permission from settings."),
+                                          actions: <Widget>[
+                                            new TextButton(
+                                              child: new Text('OK'),
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      });
+                                } else if (e.toString().contains(
+                                    'The getter \'path\' was called on null')) {
+                                  return;
+                                } else {
+                                  showDialog(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: new Text("Alert"),
+                                          content: new Text(
+                                              "Please grant Storage  permission from settings."),
+                                          actions: <Widget>[
+                                            new TextButton(
+                                              child: new Text('OK'),
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      });
+                                }
+                              }
+                            } catch (e) {
+                              showDialog(
+                                  context: context,
+                                  barrierDismissible: false,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: new Text("Alert"),
+                                      content: new Text(
+                                          "Please grant Storage  permission from settings."),
+                                      actions: <Widget>[
+                                        new TextButton(
+                                          child: new Text('OK'),
+                                          onPressed: () {
+                                            Navigator.pop(context);
+                                          },
+                                        ),
+                                      ],
+                                    );
+                                  });
+                            }
+                          },
+                          child: Container(
+                            width: width * 0.45,
+                            height: 35,
+                            margin: const EdgeInsets.all(5.0),
+                            padding: const EdgeInsets.all(5.0),
+                            decoration: BoxDecoration(
+                              border: Border.all(color: Colors.blueAccent),
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Image.asset("assets/ic_share.png",
+                                    width: 18,
+                                    height: 18,
+                                    color: Colors.blueAccent),
+                                Container(
+                                    margin:
+                                        EdgeInsets.fromLTRB(5.0, 0, 0.0, 0.0),
+                                    child: Text(
+                                      'Share',
+                                      style:
+                                          TextStyle(color: Colors.blueAccent),
+                                    )),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : Container()
+          ],
         ),
       ),
     );
   }
 
+
+  showLoaderDialog(BuildContext context){
+    showDialog(
+      barrierDismissible: false,
+      context: context,
+      builder: (BuildContext context) => CustomLoaderDialog(
+          title: "Loading..."),
+    );
+  }
   getLedgerDataFromLocalDB(int iD) async {
     dbProvider.fetchLedgerByPartyId(iD).then((value) {
       ledgerModelList = value;
@@ -572,6 +575,8 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
 
         loading = false;
       });
+      Navigator.pop(context);
+
     });
   }
 }
