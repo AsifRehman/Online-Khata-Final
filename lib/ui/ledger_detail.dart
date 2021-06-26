@@ -121,97 +121,99 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
             Container(
               margin: EdgeInsets.fromLTRB(15.0, 15.0, 12.0, 10.0),
               color: Colors.black12,
-              height: 45,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    margin: EdgeInsets.fromLTRB(4.0, 0.0, 0.0, 0.0),
-                    width: MediaQuery.of(context).size.width * 0.5,
-                    child: Text(
-                      "Ledger Detail",
-                      maxLines: 1,
-                      softWrap: true,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
+              child: Padding(
+                padding: const EdgeInsets.only(top:5,bottom: 5),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      margin: EdgeInsets.fromLTRB(4.0, 0.0, 0.0, 0.0),
+                      width: MediaQuery.of(context).size.width * 0.5,
+                      child: Text(
+                        "Ledger Detail",
+                        maxLines: 1,
+                        softWrap: true,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
-                  ),
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.2,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          child: Text(
-                            "Will Receive",
-                            textAlign: TextAlign.center,
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.2,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            child: Text(
+                              "Will Receive",
+                              textAlign: TextAlign.center,
 
-                            maxLines: 2,
-                            softWrap: true,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
+                              maxLines: 2,
+                              softWrap: true,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                           ),
-                        ),
-                        ledgerModelList == null || ledgerModelList.length == 0
-                            ? Container()
-                            : Container(
-                                child: Text(
-                                  "RS " + totalCredit.toString(),
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Colors.green,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w800,
+                          ledgerModelList == null || ledgerModelList.length == 0
+                              ? Container()
+                              : Container(
+                                  child: Text(
+                                    "RS " + totalCredit.toString(),
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: Colors.green,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w800,
+                                    ),
                                   ),
                                 ),
-                              ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                  Container(
-                    width: MediaQuery.of(context).size.width * 0.2,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                          child: Text(
-                            "You Gave",
-                            maxLines: 2,
-                            softWrap: true,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w700,
+                    Container(
+                      width: MediaQuery.of(context).size.width * 0.2,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            child: Text(
+                              "You Gave",
+                              maxLines: 2,
+                              softWrap: true,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                           ),
-                        ),
-                        ledgerModelList == null || ledgerModelList.length == 0
-                            ? Container()
-                            : Container(
-                                child: Text(
-                                  "RS " + totalDebit.toString(),
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Colors.red,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w800,
+                          ledgerModelList == null || ledgerModelList.length == 0
+                              ? Container()
+                              : Container(
+                                  child: Text(
+                                    "RS " + totalDebit.toString(),
+                                    textAlign: TextAlign.center,
+                                    style: TextStyle(
+                                      color: Colors.red,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w800,
+                                    ),
                                   ),
                                 ),
-                              ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
             Expanded(
@@ -600,7 +602,6 @@ class LedgerItem extends StatelessWidget {
 
     return new Container(
       color: Colors.white,
-      height: 135,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
