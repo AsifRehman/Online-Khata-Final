@@ -21,7 +21,7 @@ class DbProvider {
       version: 1,
       onCreate: (Database sqliteDb, int version) async {
         // await sqliteDb.execute(dateTable);
-        // await sqliteDb.execute(delRecordTable);
+        await sqliteDb.execute(delRecordTable);
         await sqliteDb.execute(partyTable);
         await sqliteDb.execute(legderTable);
         await sqliteDb.execute(partLegTable);
@@ -69,7 +69,7 @@ class DbProvider {
           );""";
 
   static const partLegTable = """
-          CREATE VIEW IF NOT EXISTS PartyLeg AS SELECT partyID, partyName, debit, credit, IFNULL(debit,0)-IFNULL(credit,0) as Bal FROM Party UNION ALL SELECT partyID, Null, debit, credit, IFNULL(debit,0)-IFNULL(credit,0) as Bal FROM Ledger;""";
+          CREATE VIEW IF NOT EXISTS PartyLeg AS SELECT 0 as vocNo, 1420118725000 as date, 'OP' tType, 'OPENING...' as description, partyID, partyName, debit, credit, IFNULL(debit,0)-IFNULL(credit,0) as Bal FROM Party UNION ALL SELECT vocNo, date, tType, description, partyID, Null, debit, credit, IFNULL(debit,0)-IFNULL(credit,0) as Bal FROM Ledger;""";
 
   static const partLegSumTable = """
           CREATE VIEW IF NOT EXISTS PartyLegSum AS SELECT partyID, MAX(partyName) as partyName, SUM(Bal) as Bal FROM PartyLeg GROUP BY partyID;""";
@@ -262,7 +262,7 @@ class DbProvider {
 
   Future<List<LedgerModel>> fetchLedger() async {
     final sqliteDb = await init();
-    final maps = await sqliteDb.query(legderTableName);
+    final maps = await sqliteDb.query(partLegTable);
 
     return List.generate(maps.length, (i) {
       //create a list of Categories
@@ -282,7 +282,7 @@ class DbProvider {
     //returns the Categories as a list (array)
 
     final sqliteDb = await init();
-    final maps = await sqliteDb.query(legderTableName,
+    final maps = await sqliteDb.query('PartyLeg',
         where: "partyID = ?",
         orderBy: "date DESC",
         whereArgs: [

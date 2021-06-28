@@ -53,12 +53,9 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
   void initState() {
     getLocalDb().then((value) {
       if (value != null && value == true) {
-
-
         if (_checkConfiguration()) {
-          Future.delayed(Duration.zero,() {
+          Future.delayed(Duration.zero, () {
             showLoaderDialog(context);
-
           });
         }
         getLedgerDataFromLocalDB(widget.iD);
@@ -113,7 +110,6 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
                         ),
                       ),
                     ),
-
                   ],
                 ),
               ),
@@ -122,7 +118,7 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
               margin: EdgeInsets.fromLTRB(15.0, 15.0, 12.0, 10.0),
               color: Colors.black12,
               child: Padding(
-                padding: const EdgeInsets.only(top:5,bottom: 5),
+                padding: const EdgeInsets.only(top: 5, bottom: 5),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -148,9 +144,8 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
                         children: [
                           Container(
                             child: Text(
-                              "Will Receive",
+                              "Credit",
                               textAlign: TextAlign.center,
-
                               maxLines: 2,
                               softWrap: true,
                               overflow: TextOverflow.ellipsis,
@@ -165,7 +160,7 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
                               ? Container()
                               : Container(
                                   child: Text(
-                                    "RS " + totalCredit.toString(),
+                                    "" + totalCredit.toString(),
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       color: Colors.green,
@@ -184,7 +179,7 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
                         children: [
                           Container(
                             child: Text(
-                              "You Gave",
+                              "Debit",
                               maxLines: 2,
                               softWrap: true,
                               overflow: TextOverflow.ellipsis,
@@ -200,7 +195,7 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
                               ? Container()
                               : Container(
                                   child: Text(
-                                    "RS " + totalDebit.toString(),
+                                    "" + totalDebit.toString(),
                                     textAlign: TextAlign.center,
                                     style: TextStyle(
                                       color: Colors.red,
@@ -552,15 +547,15 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
     );
   }
 
-
-  showLoaderDialog(BuildContext context){
+  showLoaderDialog(BuildContext context) {
     showDialog(
       barrierDismissible: false,
       context: context,
-      builder: (BuildContext context) => CustomLoaderDialog(
-          title: "Loading..."),
+      builder: (BuildContext context) =>
+          CustomLoaderDialog(title: "Loading..."),
     );
   }
+
   getLedgerDataFromLocalDB(int iD) async {
     dbProvider.fetchLedgerByPartyId(iD).then((value) {
       ledgerModelList = value;
@@ -578,7 +573,6 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
         loading = false;
       });
       Navigator.pop(context);
-
     });
   }
 }

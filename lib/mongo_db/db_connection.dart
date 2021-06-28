@@ -8,7 +8,7 @@ void dbOpen() async {}
 
 Future<void> openDbConnection() async {
   db = await Db.create(
-      'mongodb+srv://asif:cosoftcon123@cluster0.k6lme.mongodb.net/faisal_saeed?retryWrites=true&w=majority');
+      'mongodb+srv://asif:cosoftcon123@cluster0.k6lme.mongodb.net/alkaram?retryWrites=true&w=majority');
   await db.open();
 }
 

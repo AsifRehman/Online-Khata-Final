@@ -1,4 +1,6 @@
 PODS:
+  - downloads_path_provider (0.0.1):
+    - Flutter
   - Flutter (1.0.0)
   - flutter_full_pdf_viewer (1.0.1):
     - Flutter
@@ -20,6 +22,7 @@ PODS:
     - FMDB (>= 2.7.5)
 
 DEPENDENCIES:
+  - downloads_path_provider (from `.symlinks/plugins/downloads_path_provider/ios`)
   - Flutter (from `Flutter`)
   - flutter_full_pdf_viewer (from `.symlinks/plugins/flutter_full_pdf_viewer/ios`)
   - flutter_share_me (from `.symlinks/plugins/flutter_share_me/ios`)
@@ -34,6 +37,8 @@ SPEC REPOS:
     - FMDB
 
 EXTERNAL SOURCES:
+  downloads_path_provider:
+    :path: ".symlinks/plugins/downloads_path_provider/ios"
   Flutter:
     :path: Flutter
   flutter_full_pdf_viewer:
@@ -52,6 +57,7 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/sqflite/ios"
 
 SPEC CHECKSUMS:
+  downloads_path_provider: fe0d06888d4b8c055a59edbc2f51f03e63cb0e28
   Flutter: 434fef37c0980e73bb6479ef766c45957d4b510c
   flutter_full_pdf_viewer: 1b65139fc3236cde300ba6bea2a72669cb07f2e6
   flutter_share_me: dd04bcb65a595f76bd2fa0537df08fffc5a04903

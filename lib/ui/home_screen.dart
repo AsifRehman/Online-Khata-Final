@@ -22,12 +22,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void initState() {
-
-
     if (_checkConfiguration()) {
-      Future.delayed(Duration.zero,() {
+      Future.delayed(Duration.zero, () {
         showLoaderDialog(context);
-
       });
     }
     getDateFromLocalDB();
@@ -105,8 +102,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           labelStyle: new TextStyle(color: Colors.grey),
                           border: new UnderlineInputBorder(
                               borderSide: new BorderSide(color: Colors.blue)),
-                          contentPadding: const EdgeInsets.fromLTRB(
-                              12.0, 2.0, 12.0, 10.0),
+                          contentPadding:
+                              const EdgeInsets.fromLTRB(12.0, 2.0, 12.0, 10.0),
                           filled: true,
                           hintText: "Search",
                           hintStyle: new TextStyle(
@@ -124,9 +121,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           loading = true;
                         });
                         dbProvider
-                            .fetchPartyLegSumByPartName(searchController.text
-                                .toLowerCase()
-                                .toString())
+                            .fetchPartyLegSumByPartName(
+                                searchController.text.toLowerCase().toString())
                             .then((value) {
                           partyModelList = value;
 
@@ -180,12 +176,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                             MaterialPageRoute(
                                                 builder: (context) =>
                                                     LedgerDetailScreen(
-                                                      iD: partyModelList[
-                                                              index]
+                                                      iD: partyModelList[index]
                                                           .partyID,
                                                       partName:
-                                                          partyModelList[
-                                                                  index]
+                                                          partyModelList[index]
                                                               .partyName,
                                                     )));
                                       },
@@ -201,16 +195,14 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-
-  showLoaderDialog(BuildContext context){
+  showLoaderDialog(BuildContext context) {
     showDialog(
       barrierDismissible: false,
       context: context,
-      builder: (BuildContext context) => CustomLoaderDialog(
-          title: "Loading..."),
+      builder: (BuildContext context) =>
+          CustomLoaderDialog(title: "Loading..."),
     );
   }
-
 
   getDateFromLocalDB() async {
     dbProvider.fetchPartyLegSum().then((value) {
@@ -238,7 +230,6 @@ class PartiesItem extends StatelessWidget {
       height: 85,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
-
         children: <Widget>[
           Divider(
             height: 3.0,
@@ -251,136 +242,137 @@ class PartiesItem extends StatelessWidget {
                 children: <Widget>[
                   Expanded(
                     child: Container(
-                      margin: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          isKeyNotNull(_item.partyName)
-                              ? Container(
+                        margin: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            isKeyNotNull(_item.partyName)
+                                ? Container(
+                                    margin:
+                                        EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                                    child: Text(
+                                      _item.partyName,
+                                      maxLines: 1,
+                                      softWrap: true,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w400,
+                                      ),
+                                    ),
+                                  )
+                                : Container(),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Container(
                                   margin:
-                                      EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+                                      EdgeInsets.fromLTRB(0.0, 3.0, 3.0, 0.0),
                                   child: Text(
-                                    _item.partyName,
+                                    'Pending:',
+                                    textAlign: TextAlign.right,
                                     maxLines: 1,
                                     softWrap: true,
                                     overflow: TextOverflow.ellipsis,
                                     style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize: 16,
+                                      color: Colors.black54,
+                                      fontSize: 12.5,
                                       fontWeight: FontWeight.w400,
                                     ),
                                   ),
-                                )
-                              : Container(),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Container(
-                                margin: EdgeInsets.fromLTRB(0.0, 3.0, 3.0, 0.0),
-                                child: Text(
-                                  'Pending:',
-                                  textAlign: TextAlign.right,
-                                  maxLines: 1,
-                                  softWrap: true,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: Colors.black54,
-                                    fontSize: 12.5,
-                                    fontWeight: FontWeight.w400,
-                                  ),
                                 ),
-                              ),
-                              isKeyNotNullAndZero(_item.debit)
-                                  ? Container(
-                                      margin: EdgeInsets.fromLTRB(
-                                          7.0, 3.0, 3.0, 0.0),
-                                      child: Text(
-                                        'RS ' + _item.debit.toString(),
-                                        textAlign: TextAlign.right,
-                                        maxLines: 1,
-                                        softWrap: true,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          color: Colors.red,
-                                          fontSize: 12.5,
-                                          fontWeight: FontWeight.w600,
+                                isKeyNotNullAndZero(_item.debit)
+                                    ? Container(
+                                        margin: EdgeInsets.fromLTRB(
+                                            7.0, 3.0, 3.0, 0.0),
+                                        child: Text(
+                                          'RS ' + _item.debit.toString(),
+                                          textAlign: TextAlign.right,
+                                          maxLines: 1,
+                                          softWrap: true,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            color: Colors.red,
+                                            fontSize: 12.5,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      )
+                                    : Container(
+                                        margin: EdgeInsets.fromLTRB(
+                                            7.0, 3.0, 3.0, 0.0),
+                                        child: Text(
+                                          'RS 0',
+                                          textAlign: TextAlign.right,
+                                          maxLines: 1,
+                                          softWrap: true,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            color: Colors.red,
+                                            fontSize: 12.5,
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
                                       ),
-                                    )
-                                  : Container(
-                                margin: EdgeInsets.fromLTRB(
-                                    7.0, 3.0, 3.0, 0.0),
-                                child: Text(
-                                  'RS 0' ,
-                                  textAlign: TextAlign.right,
-                                  maxLines: 1,
-                                  softWrap: true,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: Colors.red,
-                                    fontSize: 12.5,
-                                    fontWeight: FontWeight.w600,
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Container(
+                                  margin:
+                                      EdgeInsets.fromLTRB(0.0, 3.0, 3.0, 0.0),
+                                  child: Text(
+                                    'Received:',
+                                    textAlign: TextAlign.right,
+                                    maxLines: 1,
+                                    softWrap: true,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: Colors.black54,
+                                      fontSize: 12.5,
+                                      fontWeight: FontWeight.w400,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: [
-                              Container(
-                                margin: EdgeInsets.fromLTRB(0.0, 3.0, 3.0, 0.0),
-                                child: Text(
-                                  'Received:',
-                                  textAlign: TextAlign.right,
-                                  maxLines: 1,
-                                  softWrap: true,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: Colors.black54,
-                                    fontSize: 12.5,
-                                    fontWeight: FontWeight.w400,
-                                  ),
-                                ),
-                              ),
-                              isKeyNotNullAndZero(_item.credit)
-                                  ? Container(
-                                      margin: EdgeInsets.fromLTRB(
-                                          3.0, 3.0, 3.0, 0.0),
-                                      child: Text(
-                                        'RS ' + _item.credit.toString(),
-                                        textAlign: TextAlign.right,
-                                        maxLines: 1,
-                                        softWrap: true,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          color: Colors.green,
-                                          fontSize: 12.5,
-                                          fontWeight: FontWeight.w600,
+                                isKeyNotNullAndZero(_item.credit)
+                                    ? Container(
+                                        margin: EdgeInsets.fromLTRB(
+                                            3.0, 3.0, 3.0, 0.0),
+                                        child: Text(
+                                          'RS ' + _item.credit.toString(),
+                                          textAlign: TextAlign.right,
+                                          maxLines: 1,
+                                          softWrap: true,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            color: Colors.green,
+                                            fontSize: 12.5,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      )
+                                    : Container(
+                                        margin: EdgeInsets.fromLTRB(
+                                            3.0, 3.0, 3.0, 0.0),
+                                        child: Text(
+                                          'RS 0',
+                                          textAlign: TextAlign.right,
+                                          maxLines: 1,
+                                          softWrap: true,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            color: Colors.green,
+                                            fontSize: 12.5,
+                                            fontWeight: FontWeight.w600,
+                                          ),
                                         ),
                                       ),
-                                    )
-                                  : Container(
-                                margin: EdgeInsets.fromLTRB(
-                                    3.0, 3.0, 3.0, 0.0),
-                                child: Text(
-                                  'RS 0',
-                                  textAlign: TextAlign.right,
-                                  maxLines: 1,
-                                  softWrap: true,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: Colors.green,
-                                    fontSize: 12.5,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      )
-                    ),
+                              ],
+                            ),
+                          ],
+                        )),
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -395,8 +387,8 @@ class PartiesItem extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             color: (int.parse(_item.total.toString())) > 0
-                                ? Colors.green
-                                : Colors.red,
+                                ? Colors.red
+                                : Colors.green,
                             fontSize: 12.5,
                             fontWeight: FontWeight.w600,
                           ),
@@ -433,12 +425,10 @@ class PartiesItem extends StatelessWidget {
       return false;
   }
 
-
   bool isKeyNotNullAndZero(Object param1) {
-    if (param1 != null && param1 !=0 )
+    if (param1 != null && param1 != 0)
       return true;
     else
       return false;
   }
-
 }
