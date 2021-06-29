@@ -34,6 +34,46 @@ Future<String> getLastSyncDateTime() async {
   return sharedPreferences.getString("lastSyncDateTime");
 }
 
+
+setUserName(String userName) async {
+  sharedPreferences = await SharedPreferences.getInstance();
+  sharedPreferences.setString("userName", userName);
+  // ignore: deprecated_member_use
+  sharedPreferences.commit();
+}
+
+Future<String> getUserName() async {
+  sharedPreferences = await SharedPreferences.getInstance();
+  return sharedPreferences.getString("userName");
+}
+
+
+
+setPassword(String password) async {
+  sharedPreferences = await SharedPreferences.getInstance();
+  sharedPreferences.setString("password", password);
+  // ignore: deprecated_member_use
+  sharedPreferences.commit();
+}
+
+Future<String> getPassword() async {
+  sharedPreferences = await SharedPreferences.getInstance();
+  return sharedPreferences.getString("password");
+}
+
+
+setDatabaseName(String databaseName) async {
+  sharedPreferences = await SharedPreferences.getInstance();
+  sharedPreferences.setString("databaseName", databaseName);
+  // ignore: deprecated_member_use
+  sharedPreferences.commit();
+}
+
+Future<String> getDatabaseName() async {
+  sharedPreferences = await SharedPreferences.getInstance();
+  return sharedPreferences.getString("databaseName");
+}
+
 String getDateTimeFormat(String date) {
   final DateTime now = DateTime.parse(date);
   // final DateFormat formatter = DateFormat('dd MMM yyyy h:mm a');
@@ -48,6 +88,21 @@ int getDateTimeLedgerFormat(DateTime date) {
   int milliseconds =  date.millisecondsSinceEpoch;
 
   return milliseconds;
+}
+
+String getDateFromMillisecound(int milliseconds){
+  DateTime datetime = DateTime.fromMillisecondsSinceEpoch(milliseconds);
+  final DateFormat formatter = DateFormat('dd-MM-yyyy');
+  String formatted = formatter.format(datetime);
+
+  return formatted;
+}
+
+String getCurrentDate(){
+  DateTime now = DateTime.now();
+  String formattedDate = DateFormat('dd-MM-yyyy').format(now);
+
+  return formattedDate;
 }
 
 bool isKeyNotNull(Object param1) {

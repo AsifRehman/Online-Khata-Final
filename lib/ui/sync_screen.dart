@@ -8,6 +8,7 @@ import 'package:onlinekhata/ui/home_screen.dart';
 import 'package:onlinekhata/mongo_db/db_connection.dart';
 import 'package:onlinekhata/sqflite_database/DbProvider.dart';
 import 'package:onlinekhata/sqflite_database/model/PartyModel.dart';
+import 'package:onlinekhata/ui/setting_screen.dart';
 import 'package:onlinekhata/utils/constants.dart';
 import 'package:onlinekhata/utils/custom_loader_dialog.dart';
 
@@ -56,30 +57,58 @@ class _SyncScreenState extends State<SyncScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  (lastSyncDate!=null &&lastSyncDate!='') ? Container(
-                    margin: EdgeInsets.fromLTRB(0.0, 0, 0.0, 20.0),
-
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Container(
-                            margin: EdgeInsets.fromLTRB(0.0, 0, 0.0, 0.0),
-
-                            child: Text("Last Sync Date: ",style: TextStyle(color: Colors.white),)
-                        ),
-                        Container(
-                          margin: EdgeInsets.fromLTRB(4.0, 0, 0.0, 0.0),
-
-                          child: Text(lastSyncDate,style: TextStyle(color: Colors.white),)
-                        ),
-                      ],
-                    ),
-                  ):Container(),
+                  (lastSyncDate != null && lastSyncDate != '')
+                      ? Container(
+                          margin: EdgeInsets.fromLTRB(0.0, 0, 0.0, 20.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Container(
+                                  margin: EdgeInsets.fromLTRB(0.0, 0, 0.0, 0.0),
+                                  child: Text(
+                                    "Last Sync Date: ",
+                                    style: TextStyle(color: Colors.white),
+                                  )),
+                              Container(
+                                  margin: EdgeInsets.fromLTRB(4.0, 0, 0.0, 0.0),
+                                  child: Text(
+                                    lastSyncDate,
+                                    style: TextStyle(color: Colors.white),
+                                  )),
+                            ],
+                          ),
+                        )
+                      : Container(),
                   HomeButton(viewHomeBtn: viewHomeBtn),
                   GestureDetector(
                     onTap: () {
-                      showLoaderDialog(context);
-                      getPartiesFromServer();
+
+                      getUserName().then((value) {
+                        if (value != null && value !="") {
+                          String userName = value;
+
+                          getPassword().then((value) {
+                            if (value != null && value !="") {
+                              String password = value;
+
+
+                              getDatabaseName().then((value) {
+                                if (value != null && value !="") {
+                                  String databaseName = value;
+
+                                  showLoaderDialog(context);
+                                  getPartiesFromServer(userName,password,databaseName);
+                                }
+                              });
+                            }
+                          });
+
+
+                        }else{
+                          showAlertDialog(context);
+                        }
+                      });
+
                     },
                     child: Container(
                       margin: EdgeInsets.fromLTRB(20.0, 15, 20.0, 0.0),
@@ -95,8 +124,7 @@ class _SyncScreenState extends State<SyncScreen> {
                           Image.asset("assets/ic_synchronize.png",
                               width: 18, height: 18, color: Colors.white),
                           Container(
-                              margin:
-                                  EdgeInsets.fromLTRB(5.0, 0, 12.0, 0.0),
+                              margin: EdgeInsets.fromLTRB(5.0, 0, 12.0, 0.0),
                               child: Text(
                                 'Sync Data',
                                 style: TextStyle(color: Colors.white),
@@ -125,10 +153,39 @@ class _SyncScreenState extends State<SyncScreen> {
                           Image.asset("assets/ic_synchronize.png",
                               width: 18, height: 18, color: Colors.white),
                           Container(
-                              margin:
-                                  EdgeInsets.fromLTRB(5.0, 0, 12.0, 0.0),
+                              margin: EdgeInsets.fromLTRB(5.0, 0, 12.0, 0.0),
                               child: Text(
                                 'Print Ledger Data',
+                                style: TextStyle(color: Colors.white),
+                              )),
+                        ],
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () async {
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => SettingScreen()));
+                    },
+                    child: Container(
+                      margin: EdgeInsets.fromLTRB(20.0, 15, 20.0, 0.0),
+                      height: 40,
+                      padding: const EdgeInsets.all(5.0),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.white),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Image.asset("assets/ic_settings.png",
+                              width: 18, height: 18, color: Colors.white),
+                          Container(
+                              margin: EdgeInsets.fromLTRB(5.0, 0, 12.0, 0.0),
+                              child: Text(
+                                'Settings',
                                 style: TextStyle(color: Colors.white),
                               )),
                         ],
@@ -140,7 +197,28 @@ class _SyncScreenState extends State<SyncScreen> {
             )));
   }
 
-  getPartiesFromServer() async {
+  void showAlertDialog(BuildContext context){
+
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: new Text("Alert"),
+            content: new Text("First,Go to Settings and fill information in the field."),
+            actions: <Widget>[
+              new TextButton(
+                child: new Text('OK'),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ],
+          );
+        });
+  }
+
+  getPartiesFromServer(String userName,String password,String databaseName) async {
     try {
       final result = await InternetAddress.lookup('google.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
@@ -148,16 +226,13 @@ class _SyncScreenState extends State<SyncScreen> {
           loading = true;
         });
 
-        openDbConnection().then((value) async {
+
+
+        openDbConnection(userName,password,databaseName).then((value) async {
           getPartyData().then((value) async {
             getLedger();
           });
-          // getLedger();
 
-// setState(() {
-//   viewHomeBtn=true;
-//   loading= false;
-// });
         });
       }
     } on SocketException catch (_) {
@@ -190,7 +265,7 @@ class _SyncScreenState extends State<SyncScreen> {
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         await getLedgerData().then((value) {
           setLocalDb(true);
-          String dateTime= getCurrentDateTime();
+          String dateTime = getCurrentDateTime();
           setLastSyncDateTime(dateTime);
           setState(() {
             loading = false;
@@ -248,12 +323,12 @@ class _SyncScreenState extends State<SyncScreen> {
     return formattedDate;
   }
 
-  showLoaderDialog(BuildContext context){
+  showLoaderDialog(BuildContext context) {
     showDialog(
       barrierDismissible: false,
       context: context,
-      builder: (BuildContext context) => CustomLoaderDialog(
-          title: "Loading..."),
+      builder: (BuildContext context) =>
+          CustomLoaderDialog(title: "Loading..."),
     );
   }
 
@@ -274,8 +349,49 @@ class HomeButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => HomeScreen()));
+
+
+        getUserName().then((value) {
+          if (value != null && value !="") {
+            String userName = value;
+
+            getPassword().then((value) {
+              if (value != null && value !="") {
+                String password = value;
+
+                getDatabaseName().then((value) {
+                  if (value != null && value !="") {
+                    String databaseName = value;
+
+                    Navigator.push(
+                        context, MaterialPageRoute(builder: (context) => HomeScreen()));
+                  }
+                });
+              }
+            });
+
+
+          }else{
+
+            showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: new Text("Alert"),
+                    content: new Text("First,Go to Settings and fill information in the field."),
+                    actions: <Widget>[
+                      new TextButton(
+                        child: new Text('OK'),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ],
+                  );
+                });          }
+        });
+
       },
       child: Visibility(
         visible: viewHomeBtn,

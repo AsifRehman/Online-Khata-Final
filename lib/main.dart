@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:onlinekhata/ui/ledger_detail.dart';
+import 'package:onlinekhata/ui/setting_screen.dart';
 import 'package:onlinekhata/ui/splash_screen.dart';
 import 'package:onlinekhata/ui/home_screen.dart';
 import 'package:onlinekhata/ui/sync_screen.dart';
@@ -31,6 +32,7 @@ class MyApp extends StatelessWidget {
          HomeScreen.id: (context) => HomeScreen(),
           LedgerDetailScreen.id: (context) => LedgerDetailScreen(),
           SyncScreen.id: (context) => SyncScreen(),
+          SettingScreen.id: (context) => SettingScreen(),
         });
   }
 }

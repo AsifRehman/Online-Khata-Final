@@ -36,7 +36,10 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
   List<dynamic> dateEnd = ["2021-05-25 19:02:51.000Z"];
   DbProvider dbProvider = DbProvider();
   List<LedgerModel> ledgerModelList = [];
+
   bool _checkConfiguration() => true;
+  int startDateMilli,endDateMilli;
+  String startDateStr = "", endDateStr = "";
 
   _LedgerDetailScreenState({this.iD, this.partName});
 
@@ -112,6 +115,92 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
                     ),
                   ],
                 ),
+              ),
+            ),
+            Container(
+              margin: EdgeInsets.fromLTRB(14.0, 15.0, 14.0, 2.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      selectStartDate(context);
+                    },
+                    child: Container(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Container(
+                            child: Text(
+                              'Start Date',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                          Container(
+                            margin: EdgeInsets.fromLTRB(0.0, 3.0, 0.0, 0.0),
+                            decoration: BoxDecoration(
+                                border: Border.all(color: Colors.blueAccent),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(5))),
+                            padding: const EdgeInsets.all(4.0),
+                            child: Text(
+                              startDateStr,
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () {
+                      selectEndDate(context);
+                    },
+                    child: Container(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Container(
+                            child: Text(
+                              'End Date',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                          Container(
+                            margin: EdgeInsets.fromLTRB(0.0, 3.0, 0.0, 0.0),
+                            decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: Colors.blueAccent,
+                                ),
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(5))),
+                            padding: const EdgeInsets.all(4.0),
+                            child: Text(
+                              endDateStr,
+                              style: TextStyle(
+                                color: Colors.grey,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
             Container(
@@ -248,8 +337,31 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
                               if (await Permission.storage
                                   .request()
                                   .isGranted) {
-                                generatePdfReport(context, widget.partName,
-                                    ledgerModelList, "from_view");
+                                if (await _requestPermission(
+                                    Permission.storage)) {
+                                  generatePdfReport(context, widget.partName,
+                                      ledgerModelList, "from_view");
+                                } else {
+                                  showDialog(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (BuildContext context) {
+                                        return AlertDialog(
+                                          title: new Text("Alert"),
+                                          content: new Text(
+                                              "Please grant Storage permission from settings."),
+                                          actions: <Widget>[
+                                            new TextButton(
+                                              child: new Text('OK'),
+                                              onPressed: () {
+                                                Navigator.pop(context);
+                                                openAppSettings();
+                                              },
+                                            ),
+                                          ],
+                                        );
+                                      });
+                                }
                               } else {
                                 if (status.isPermanentlyDenied) {
                                   // The user opted to never again see the permission request dialog for this
@@ -556,6 +668,97 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
     );
   }
 
+  selectStartDate(BuildContext context) async {
+    //  DateTime initDate = DateTime.now();
+    final DateTime picked = await showDatePicker(
+      context: context,
+
+      initialDate: DateTime(2015), // Refer step 1
+      firstDate: DateTime(2015),
+      lastDate: DateTime(2040),
+    );
+    if (picked != null && picked != DateTime.now())
+      setState(() {
+        if (picked.day <= 9) {
+          startDateStr = "0" + picked.day.toString() +"-";
+        } else {
+          startDateStr = picked.day.toString() + "-";
+        }
+
+        if (picked.month <= 9) {
+          startDateStr +=
+              "0" + picked.month.toString() + "-" + picked.year.toString();
+        } else {
+          startDateStr +=
+              picked.month.toString() + "-" + picked.year.toString();
+        }
+
+        startDateMilli =   picked.millisecondsSinceEpoch;
+
+      });
+  }
+
+  selectEndDate(BuildContext context) async {
+    final DateTime picked = await showDatePicker(
+      context: context,
+
+      initialDate: DateTime.now(), // Refer step 1
+      firstDate: DateTime(2015),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null && picked != DateTime.now())
+      setState(() {
+        if (picked.day <= 9) {
+          endDateStr = "0" + picked.day.toString() + "-";
+        } else {
+          endDateStr = picked.day.toString() + "-";
+        }
+        if (picked.month <= 9) {
+          endDateStr +=  "0" + picked.month.toString()+ "-" +picked.year.toString() ;
+        } else {
+          endDateStr +=  picked.month.toString()+ "-" +picked.year.toString() ;
+        }
+
+        loading = true;
+      });
+    endDateMilli =   picked.millisecondsSinceEpoch;
+    showLoaderDialog(context);
+
+    getBetweenDatesData(startDateMilli,endDateMilli);
+  }
+
+  void getBetweenDatesData(int startDateMilli, int endDate) {
+    dbProvider.fetchLedgerByStartAndEndDate(widget.iD,startDateMilli, endDate).then((value) {
+      ledgerModelList = value;
+
+      setState(() {
+        for (int i = 0; i < ledgerModelList.length; i++) {
+          if (isKyNotNull(ledgerModelList[i].debit)) {
+            totalDebit = totalDebit + ledgerModelList[i].debit;
+          }
+          if (isKyNotNull(ledgerModelList[i].credit)) {
+            totalCredit = totalCredit + ledgerModelList[i].credit;
+          }
+        }
+
+        loading = false;
+      });
+      Navigator.pop(context);
+    });
+  }
+
+  Future<bool> _requestPermission(Permission permission) async {
+    if (await permission.isGranted) {
+      return true;
+    } else {
+      var result = await permission.request();
+      if (result == PermissionStatus.granted) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   getLedgerDataFromLocalDB(int iD) async {
     dbProvider.fetchLedgerByPartyId(iD).then((value) {
       ledgerModelList = value;
@@ -568,7 +771,12 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
           if (isKyNotNull(ledgerModelList[i].credit)) {
             totalCredit = totalCredit + ledgerModelList[i].credit;
           }
+          startDateMilli = ledgerModelList[i].date;
         }
+        if (isKeyNotNull(startDateMilli)) {
+          startDateStr = getDateFromMillisecound(startDateMilli);
+        }
+        endDateStr = getCurrentDate();
 
         loading = false;
       });

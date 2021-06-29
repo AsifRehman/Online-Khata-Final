@@ -72,7 +72,7 @@ class DbProvider {
           CREATE VIEW IF NOT EXISTS PartyLeg AS SELECT 0 as vocNo, 1420118725000 as date, 'OP' tType, 'OPENING...' as description, partyID, partyName, debit, credit, IFNULL(debit,0)-IFNULL(credit,0) as Bal FROM Party UNION ALL SELECT vocNo, date, tType, description, partyID, Null, debit, credit, IFNULL(debit,0)-IFNULL(credit,0) as Bal FROM Ledger;""";
 
   static const partLegSumTable = """
-          CREATE VIEW IF NOT EXISTS PartyLegSum AS SELECT partyID, MAX(partyName) as partyName, SUM(Bal) as Bal FROM PartyLeg GROUP BY partyID;""";
+          CREATE VIEW IF NOT EXISTS PartyLegSum AS SELECT partyID, MAX(partyName) as partyName, debit, credit, SUM(Bal) as Bal FROM PartyLeg GROUP BY partyID;""";
 
   Future addPartyItem(var collection) async {
     final sqliteDb = await init(); //open database
@@ -287,6 +287,33 @@ class DbProvider {
         orderBy: "date DESC",
         whereArgs: [
           partyId
+        ]); //query all the rows in a table as an array of maps
+
+    return List.generate(maps.length, (i) {
+      //create a list of Categories
+      return LedgerModel(
+        partyID: maps[i]['partyID'],
+        vocNo: maps[i]['vocNo'],
+        tType: maps[i]['tType'],
+        description: maps[i]['description'],
+        date: maps[i]['date'],
+        debit: maps[i]['debit'],
+        credit: maps[i]['credit'],
+      );
+    });
+  }
+
+
+  Future<List<LedgerModel>> fetchLedgerByStartAndEndDate(int partyId,int startDate,int endDate) async {
+
+    final sqliteDb = await init();
+    final maps = await sqliteDb.query('PartyLeg',
+        where: "partyID = ? AND date BETWEEN  ? AND  ?",
+        orderBy: "date DESC",
+        whereArgs: [
+          partyId,
+          startDate,
+          endDate
         ]); //query all the rows in a table as an array of maps
 
     return List.generate(maps.length, (i) {

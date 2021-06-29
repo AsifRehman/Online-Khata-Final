@@ -106,7 +106,7 @@ generatePdfReport(context, String partName, List<LedgerModel> list,
     // defaultColumnWidth: FixedColumnWidth(400.0),
     columnWidths: {
       0: FlexColumnWidth(3),
-      1: FlexColumnWidth(3),
+      1: FlexColumnWidth(2.6),
       2: FlexColumnWidth(4.6),
       3: FlexColumnWidth(7),
       4: FlexColumnWidth(4),
@@ -270,30 +270,43 @@ generatePdfReport(context, String partName, List<LedgerModel> list,
             table
           ]));
 
-  initDownloadsDirectoryState().then((value) async{
+  initDownloadsDirectoryState().then((value) async {
+    //save PDF
+    DateTime now = DateTime.now();
+    String formattedDate = DateFormat('kk:mm:ss EEE d MMM').format(now);
 
-    if(_downloadsDirectory!=null){
-
-      //save PDF
-      DateTime now = DateTime.now();
-      String formattedDate = DateFormat('kk:mm:ss EEE d MMM').format(now);
-
+    String folderName = "Online khata Reports";
+    var dirPath = "storage/emulated/0/$folderName";
+    // var createReportDir = await new Directory(dirPath).create();
+    // var directory  = await  getApplicationDocumentsDirectory();
+    Directory dir;
+   // var createReportDir;
+    if (Platform.isAndroid) {
+      // dir = (await getExternalStorageDirectory());
 
       String folderName = "Online khata Reports";
       var dirPath = "storage/emulated/0/$folderName";
-      // var createReportDir = await new Directory(dirPath).create();
-      // var directory  = await  getApplicationDocumentsDirectory();
+      dir =  await  new Directory(dirPath);
 
-      // var dir = (await getExternalStorageDirectory());
-      // var createReportDir = await new Directory('${dir.path}/Online khata Reports').create(recursive: true);
+      // dir = await new Directory('${dir.path}/Online khata Reports');
 
-      // final String filePath = '${_downloadsDirectory.path}/Report_$formattedDate.pdf';
-      final String filePath = _downloadsDirectory.path+'/Report_$formattedDate.pdf';
+    }else if(Platform.isIOS){
+      dir = (await getApplicationDocumentsDirectory());
+
+    }
+    if (!await dir.exists()) {
+      await dir.create(recursive: true);
+    }
+    if (await dir.exists()) {
+
+
+      final String filePath = dir.path + '/Report_$formattedDate.pdf';
       final File file = File(filePath);
 
       await file.writeAsBytes(pdf.save()).then((value) {
         if (viewOrDownload == "from_share") {
-          Share.shareFiles(['${_downloadsDirectory.path}/Report_$formattedDate.pdf'],
+          Share.shareFiles(
+              ['${dir.path}/Report_$formattedDate.pdf'],
               text: '');
         } else {
           material.Navigator.of(context).push(
@@ -304,10 +317,35 @@ generatePdfReport(context, String partName, List<LedgerModel> list,
         }
       });
     }
+
+
   });
-
-
 }
+
+// String folderName = "Online khata Reports";
+// var dirPath = "storage/emulated/0/$folderName";
+// // var createReportDir = await new Directory(dirPath).create();
+// // var directory  = await  getApplicationDocumentsDirectory();
+//
+// // var dir = (await getExternalStorageDirectory());
+// // var createReportDir = await new Directory('${dir.path}/Online khata Reports').create(recursive: true);
+//
+// // final String filePath = '${_downloadsDirectory.path}/Report_$formattedDate.pdf';
+// final String filePath = _downloadsDirectory.path+'/Report_$formattedDate.pdf';
+// final File file = File(filePath);
+//
+// await file.writeAsBytes(pdf.save()).then((value) {
+// if (viewOrDownload == "from_share") {
+// Share.shareFiles(['${_downloadsDirectory.path}/Report_$formattedDate.pdf'],
+// text: '');
+// } else {
+// material.Navigator.of(context).push(
+// material.MaterialPageRoute(
+// builder: (_) => PdfViewerPage(path: filePath),
+// ),
+// );
+// }
+// });
 
 Future<void> initDownloadsDirectoryState() async {
   Directory downloadsDirectory;
@@ -318,10 +356,9 @@ Future<void> initDownloadsDirectoryState() async {
     print('Could not get the downloads directory');
   }
 
-
-    _downloadsDirectory = downloadsDirectory;
-
+  _downloadsDirectory = downloadsDirectory;
 }
+
 String getDateTimeFormat(int date) {
   DateTime datetime = DateTime.fromMillisecondsSinceEpoch(date);
   final DateFormat formatter = DateFormat('dd MMM yyyy');
