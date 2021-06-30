@@ -303,9 +303,8 @@ class DbProvider {
     });
   }
 
-
-  Future<List<LedgerModel>> fetchLedgerByStartAndEndDate(int partyId,int startDate,int endDate) async {
-
+  Future<List<LedgerModel>> fetchLedgerByStartAndEndDate(
+      int partyId, int startDate, int endDate) async {
     final sqliteDb = await init();
     final maps = await sqliteDb.query('PartyLeg',
         where: "partyID = ? AND date BETWEEN  ? AND  ?",
@@ -328,6 +327,13 @@ class DbProvider {
         credit: maps[i]['credit'],
       );
     });
+  }
+
+  Future<int> fetchLedgerOpening(int partyId, int startDate) async {
+    final sqliteDb = await init();
+    final result = await sqliteDb.rawQuery(
+        "SELECT IFNULL(SUM(Bal),0) as opening FROM PartyLeg WHERE partyID=$partyId AND date<$startDate");
+    return result[0]["opening"];
   }
 
   Future closesqliteDbConnection() async {
