@@ -122,7 +122,7 @@ class DbProvider {
     int maxTs = await dbProvider.fetchLedgerLastTs();
 
     await ledgerCollection
-        .find(where.gt('ts', maxTs).sortBy('ts').limit(1000))
+        .find(where.gt('ts', maxTs).sortBy('ts'))
         .forEach((v) async {
       final ledgerModel = LedgerModel(
         id: v['_id'],
