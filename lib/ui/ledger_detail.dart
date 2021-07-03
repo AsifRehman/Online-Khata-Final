@@ -33,6 +33,9 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
   bool loading = true;
   List<dynamic> dateStart = ["2021-04-27 19:02:51.000Z"];
   List<dynamic> dateEnd = ["2021-05-25 19:02:51.000Z"];
+  int opening = 0;
+  int closing = 0;
+
   DbProvider dbProvider = DbProvider();
   List<LedgerModel> ledgerModelList = [];
 
@@ -628,80 +631,70 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          GestureDetector(
-            onTap: () {
-              selectStartDate(context);
-            },
-            child: Container(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    child: Text(
-                      'Opening',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
-                      ),
+          Container(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  child: Text(
+                    'Opening',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                  Container(
-                    margin: EdgeInsets.fromLTRB(0.0, 3.0, 0.0, 0.0),
-                    decoration: BoxDecoration(
-                        border: Border.all(color: Colors.blueAccent),
-                        borderRadius: BorderRadius.all(Radius.circular(5))),
-                    padding: const EdgeInsets.all(4.0),
-                    child: Text(
-                      startDateStr,
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                      ),
+                ),
+                Container(
+                  margin: EdgeInsets.fromLTRB(0.0, 3.0, 0.0, 0.0),
+                  decoration: BoxDecoration(
+                      border: Border.all(color: Colors.blueAccent),
+                      borderRadius: BorderRadius.all(Radius.circular(5))),
+                  padding: const EdgeInsets.all(4.0),
+                  child: Text(
+                    opening.toString(),
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
-          GestureDetector(
-            onTap: () {
-              selectEndDate(context);
-            },
-            child: Container(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Container(
-                    child: Text(
-                      'Closing:',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w500,
-                      ),
+          Container(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  child: Text(
+                    'Closing:',
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                  Container(
-                    margin: EdgeInsets.fromLTRB(0.0, 3.0, 0.0, 0.0),
-                    decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.blueAccent,
-                        ),
-                        borderRadius: BorderRadius.all(Radius.circular(5))),
-                    padding: const EdgeInsets.all(4.0),
-                    child: Text(
-                      endDateStr,
-                      style: TextStyle(
-                        color: Colors.grey,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
+                ),
+                Container(
+                  margin: EdgeInsets.fromLTRB(0.0, 3.0, 0.0, 0.0),
+                  decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Colors.blueAccent,
                       ),
+                      borderRadius: BorderRadius.all(Radius.circular(5))),
+                  padding: const EdgeInsets.all(4.0),
+                  child: Text(
+                    closing.toString(),
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
@@ -834,6 +827,7 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
           if (isKyNotNull(ledgerModelList[i].credit)) {
             totalCredit = totalCredit + ledgerModelList[i].credit;
           }
+          closing = opening + totalDebit - totalCredit;
         }
 
         loading = false;
@@ -872,6 +866,7 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
           startDateStr = getDateFromMillisecound(startDateMilli);
         }
         endDateStr = getCurrentDate();
+        closing = opening + totalDebit - totalCredit;
 
         loading = false;
       });
