@@ -82,33 +82,29 @@ class _SyncScreenState extends State<SyncScreen> {
                   HomeButton(viewHomeBtn: viewHomeBtn),
                   GestureDetector(
                     onTap: () {
-
                       getUserName().then((value) {
-                        if (value != null && value !="") {
+                        if (value != null && value != "") {
                           String userName = value;
 
                           getPassword().then((value) {
-                            if (value != null && value !="") {
+                            if (value != null && value != "") {
                               String password = value;
 
-
                               getDatabaseName().then((value) {
-                                if (value != null && value !="") {
+                                if (value != null && value != "") {
                                   String databaseName = value;
 
                                   showLoaderDialog(context);
-                                  getPartiesFromServer(userName,password,databaseName);
+                                  getPartiesFromServer(
+                                      userName, password, databaseName);
                                 }
                               });
                             }
                           });
-
-
-                        }else{
+                        } else {
                           showAlertDialog(context);
                         }
                       });
-
                     },
                     child: Container(
                       margin: EdgeInsets.fromLTRB(20.0, 15, 20.0, 0.0),
@@ -127,35 +123,6 @@ class _SyncScreenState extends State<SyncScreen> {
                               margin: EdgeInsets.fromLTRB(5.0, 0, 12.0, 0.0),
                               child: Text(
                                 'Sync Data',
-                                style: TextStyle(color: Colors.white),
-                              )),
-                        ],
-                      ),
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () async {
-                      DbProvider dbProvider = DbProvider();
-                      var result = await dbProvider.fetchParties();
-                      print(result);
-                    },
-                    child: Container(
-                      margin: EdgeInsets.fromLTRB(20.0, 15, 20.0, 0.0),
-                      height: 40,
-                      padding: const EdgeInsets.all(5.0),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.white),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Image.asset("assets/ic_synchronize.png",
-                              width: 18, height: 18, color: Colors.white),
-                          Container(
-                              margin: EdgeInsets.fromLTRB(5.0, 0, 12.0, 0.0),
-                              child: Text(
-                                'Print Ledger Data',
                                 style: TextStyle(color: Colors.white),
                               )),
                         ],
@@ -197,15 +164,15 @@ class _SyncScreenState extends State<SyncScreen> {
             )));
   }
 
-  void showAlertDialog(BuildContext context){
-
+  void showAlertDialog(BuildContext context) {
     showDialog(
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
             title: new Text("Alert"),
-            content: new Text("First,Go to Settings and fill information in the field."),
+            content: new Text(
+                "First,Go to Settings and fill information in the field."),
             actions: <Widget>[
               new TextButton(
                 child: new Text('OK'),
@@ -218,7 +185,8 @@ class _SyncScreenState extends State<SyncScreen> {
         });
   }
 
-  getPartiesFromServer(String userName,String password,String databaseName) async {
+  getPartiesFromServer(
+      String userName, String password, String databaseName) async {
     try {
       final result = await InternetAddress.lookup('google.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
@@ -226,13 +194,10 @@ class _SyncScreenState extends State<SyncScreen> {
           loading = true;
         });
 
-
-
-        openDbConnection(userName,password,databaseName).then((value) async {
+        openDbConnection(userName, password, databaseName).then((value) async {
           getPartyData().then((value) async {
             getLedger();
           });
-
         });
       }
     } on SocketException catch (_) {
@@ -349,37 +314,33 @@ class HomeButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-
-
         getUserName().then((value) {
-          if (value != null && value !="") {
+          if (value != null && value != "") {
             String userName = value;
 
             getPassword().then((value) {
-              if (value != null && value !="") {
+              if (value != null && value != "") {
                 String password = value;
 
                 getDatabaseName().then((value) {
-                  if (value != null && value !="") {
+                  if (value != null && value != "") {
                     String databaseName = value;
 
-                    Navigator.push(
-                        context, MaterialPageRoute(builder: (context) => HomeScreen()));
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => HomeScreen()));
                   }
                 });
               }
             });
-
-
-          }else{
-
+          } else {
             showDialog(
                 context: context,
                 barrierDismissible: false,
                 builder: (BuildContext context) {
                   return AlertDialog(
                     title: new Text("Alert"),
-                    content: new Text("First,Go to Settings and fill information in the field."),
+                    content: new Text(
+                        "First,Go to Settings and fill information in the field."),
                     actions: <Widget>[
                       new TextButton(
                         child: new Text('OK'),
@@ -389,9 +350,9 @@ class HomeButton extends StatelessWidget {
                       ),
                     ],
                   );
-                });          }
+                });
+          }
         });
-
       },
       child: Visibility(
         visible: viewHomeBtn,
