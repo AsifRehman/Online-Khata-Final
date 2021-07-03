@@ -52,6 +52,9 @@ class DbProvider {
           debit INTEGER,
           credit INTEGER,
           total INTEGER,
+          date INTEGER,
+          mobile1 TEXT,
+          mobile2 TEXT,
           ts INTEGER
           );""";
 
@@ -69,10 +72,10 @@ class DbProvider {
           );""";
 
   static const partLegTable = """
-          CREATE VIEW IF NOT EXISTS PartyLeg AS SELECT 0 as vocNo, 1420118725000 as date, 'OP' tType, 'OPENING...' as description, partyID, partyName, debit, credit, IFNULL(debit,0)-IFNULL(credit,0) as Bal FROM Party WHERE debit>0 OR credit>0 UNION ALL SELECT vocNo, date, tType, description, partyID, Null, debit, credit, IFNULL(debit,0)-IFNULL(credit,0) as Bal FROM Ledger;""";
+          CREATE VIEW IF NOT EXISTS PartyLeg AS SELECT 0 as vocNo, date, 'OP' tType, 'OPENING...' as description, partyID, partyName, debit, credit, IFNULL(debit,0)-IFNULL(credit,0) as Bal FROM Party UNION ALL SELECT vocNo, date, tType, description, partyID, Null, debit, credit, IFNULL(debit,0)-IFNULL(credit,0) as Bal FROM Ledger;""";
 
   static const partLegSumTable = """
-          CREATE VIEW IF NOT EXISTS PartyLegSum AS SELECT partyID, MAX(partyName) as partyName, debit, credit, SUM(Bal) as Bal FROM PartyLeg GROUP BY partyID;""";
+          CREATE VIEW IF NOT EXISTS PartyLegSum AS SELECT partyID, MAX(partyName) as partyName, SUM(Bal) as Bal FROM PartyLeg GROUP BY partyID;""";
 
   Future addPartyItem(var collection) async {
     final sqliteDb = await init(); //open database
@@ -86,6 +89,9 @@ class DbProvider {
         partyID: v['_id'],
         partyName: v['PartyName'].toString(),
         partyTypeId: v['PartyTypeId'],
+        date: getDateTimeLedgerFormat(v['Date']),
+        mobile1: v['Mobile1'],
+        mobile2: v['Mobile2'],
         debit: isKyNotNull(v['Debit'].toString()) ? v['Debit'] : 0,
         credit: isKyNotNull(v['Credit']) ? v['Credit'] : 0,
         ts: v['ts'],
@@ -120,7 +126,7 @@ class DbProvider {
         .forEach((v) async {
       final ledgerModel = LedgerModel(
         id: v['_id'],
-        partyID: v['PartyID'],
+        partyID: v['PartyId'],
         vocNo: v['VocNo'],
         tType: v['TType'].toString(),
         description: v['Description'].toString(),
@@ -173,9 +179,10 @@ class DbProvider {
 
   Future<List<PartyModel>> fetchPartyLegSum() async {
     final sqliteDb = await init();
-    final maps = await sqliteDb.query(partyLegSumCreateViewTableName);
+    final maps = await sqliteDb.query('PartyLegSum');
 
     return List.generate(maps.length, (i) {
+      print(maps[i]);
       //create a list of Categories
       return PartyModel(
         partyID: maps[i]['partyID'],

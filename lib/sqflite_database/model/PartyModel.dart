@@ -5,6 +5,9 @@ class PartyModel {
   int debit;
   int credit;
   int total;
+  int date;
+  String mobile1;
+  String mobile2;
   int ts;
 
   PartyModel(
@@ -14,6 +17,9 @@ class PartyModel {
       this.debit,
       this.credit,
       this.total,
+      this.date,
+      this.mobile1,
+      this.mobile2,
       this.ts});
 
   Map<String, dynamic> toMap() {
@@ -25,6 +31,9 @@ class PartyModel {
       "debit": debit,
       "credit": credit,
       "total": total,
+      "date": date,
+      "mobile1": mobile1,
+      "mobile2": mobile2,
       "ts": ts
     };
   }
