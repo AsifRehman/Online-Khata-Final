@@ -33,14 +33,7 @@ generatePdfReport(context, String partName, List<LedgerModel> list,
 
   ledgerList.clear();
 
-  // Timestamp t;
-  // DateTime d;
-
   for (int i = list.length - 1; i >= 0; i--) {
-    // if (isKeyNotNull(list[i].date)) {
-    //   t = list[i].data["Date"];
-    //   d = t.toDate();
-    // }
 
     totalDebit =
         isKyNotNull(list[i].debit) ? totalDebit + list[i].debit : totalDebit;
@@ -147,11 +140,19 @@ generatePdfReport(context, String partName, List<LedgerModel> list,
                     .copyWith(color: PdfColors.grey)));
       },
       build: (Context context) => <Widget>[
+        // Header(
+        //     level: 1,
+        //     child:  pw.FlatButton(
+        //       child: material.Image.asset("name")
+        //     ),
+        // ),
             Header(
                 level: 0,
                 child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
+                      // material.Image.asset("assets/ic_back.png"),
+                      // material.FlatButton(),
                       Text('Online Khata',
                           textScaleFactor: 2,
                           style: Theme.of(context)
@@ -254,19 +255,6 @@ generatePdfReport(context, String partName, List<LedgerModel> list,
                                           fontWeight: FontWeight.bold)))
                         ]))),
 
-            // Table.fromTextArray(context: context, data: const <List<String>>[
-            //   <String>['Year', 'Ipsum', 'Lorem'],
-            //   <String>['2000', 'Ipsum 1.0', 'Lorem 1'],
-            //   <String>['2001', 'Ipsum 1.1', 'Lorem 2'],
-            //   <String>['2002', 'Ipsum 1.2', 'Lorem 3'],
-            //   <String>['2003', 'Ipsum 1.3', 'Lorem 4'],
-            //   <String>['2004', 'Ipsum 1.4', 'Lorem 5'],
-            //   <String>['2004', 'Ipsum 1.5', 'Lorem 6'],
-            //   <String>['2006', 'Ipsum 1.6', 'Lorem 7'],
-            //   <String>['2007', 'Ipsum 1.7', 'Lorem 8'],
-            //   <String>['2008', 'Ipsum 1.7', 'Lorem 9'],
-            // ]),
-
             table
           ]));
 
@@ -279,16 +267,12 @@ generatePdfReport(context, String partName, List<LedgerModel> list,
     var dirPath = "storage/emulated/0/$folderName";
     // var createReportDir = await new Directory(dirPath).create();
     // var directory  = await  getApplicationDocumentsDirectory();
-    Directory dir;
-   // var createReportDir;
-    if (Platform.isAndroid) {
-      // dir = (await getExternalStorageDirectory());
 
+    Directory dir;
+    if (Platform.isAndroid) {
       String folderName = "Online khata Reports";
       var dirPath = "storage/emulated/0/$folderName";
       dir =  await  new Directory(dirPath);
-
-      // dir = await new Directory('${dir.path}/Online khata Reports');
 
     }else if(Platform.isIOS){
       dir = (await getApplicationDocumentsDirectory());
@@ -311,15 +295,18 @@ generatePdfReport(context, String partName, List<LedgerModel> list,
         } else {
           material.Navigator.of(context).push(
             material.MaterialPageRoute(
-              builder: (_) => PdfViewerPage(path: filePath),
+              builder: (_) => PdfViewerPage(path: filePath,fileUri:file),
             ),
           );
+
+
         }
       });
     }
 
 
   });
+
 }
 
 // String folderName = "Online khata Reports";

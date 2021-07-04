@@ -13,10 +13,43 @@ class _SettingScreenState extends State<SettingScreen> {
   TextEditingController _userNameController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
   TextEditingController _databaseNameController = TextEditingController();
+  bool showPassword = false;
 
   final focus = FocusNode();
   final focus2 = FocusNode();
   final focus3 = FocusNode();
+
+  @override
+  void initState() {
+
+    getPassword().then((value) {
+      if (value != null && value != "") {
+        setState(() {
+          _passwordController.text = value;
+
+        });
+      }
+    });
+
+    getUserName().then((value) {
+      if (value != null && value != "") {
+        setState(() {
+          _userNameController.text = value;
+
+        });
+      }
+    });
+
+    getDatabaseName().then((value) {
+      if (value != null && value != "") {
+        setState(() {
+          _databaseNameController.text = value;
+
+        });
+      }
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,9 +102,13 @@ class _SettingScreenState extends State<SettingScreen> {
                     child: TextField(
                       style: new TextStyle(fontSize: 14.0, color: Colors.grey),
                       controller: _passwordController,
-                      autofocus: false,
                       enableSuggestions: false,
                       autocorrect: false,
+
+                      autofocus: false,
+                      obscureText: !this.showPassword,
+
+                      keyboardType: TextInputType.text,
 
                       textInputAction: TextInputAction.next,
                       focusNode: focus2,
@@ -79,6 +116,16 @@ class _SettingScreenState extends State<SettingScreen> {
                         FocusScope.of(context).requestFocus(focus3);
                       },
                       decoration: InputDecoration(
+
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              Icons.remove_red_eye_rounded,
+                              color: this.showPassword ? Colors.blueAccent : Colors.grey,
+                            ),
+                            onPressed: () {
+                              setState(() => this.showPassword = !this.showPassword);
+                            },
+                          ),
                           contentPadding: const EdgeInsets.all(16.0),
                           border: new OutlineInputBorder(
                             borderSide: const BorderSide(

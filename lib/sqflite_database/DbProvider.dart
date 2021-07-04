@@ -75,7 +75,7 @@ class DbProvider {
           CREATE VIEW IF NOT EXISTS PartyLeg AS SELECT 0 as vocNo, date, 'OP' tType, 'OPENING...' as description, partyID, partyName, debit, credit, IFNULL(debit,0)-IFNULL(credit,0) as Bal FROM Party UNION ALL SELECT vocNo, date, tType, description, partyID, Null, debit, credit, IFNULL(debit,0)-IFNULL(credit,0) as Bal FROM Ledger;""";
 
   static const partLegSumTable = """
-          CREATE VIEW IF NOT EXISTS PartyLegSum AS SELECT partyID, MAX(partyName) as partyName, SUM(Bal) as Bal FROM PartyLeg GROUP BY partyID;""";
+          CREATE VIEW IF NOT EXISTS PartyLegSum AS SELECT partyID, MAX(partyName) as partyName, debit, credit, SUM(Bal) as Bal FROM PartyLeg GROUP BY partyID;""";
 
   Future addPartyItem(var collection) async {
     final sqliteDb = await init(); //open database

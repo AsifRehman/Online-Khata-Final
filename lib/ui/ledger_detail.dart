@@ -64,6 +64,7 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
           });
         }
         getLedgerDataFromLocalDB(widget.iD);
+
       }
     });
 
@@ -85,7 +86,7 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
             buildLedgerHeading(context),
             buildLedgerDetail(),
             ledgerModelList != null && ledgerModelList.length > 0
-                ? buildPDFbuttons(context, width)
+                ?  buildPDFbuttons(context, width)
                 : Container()
           ],
         ),
@@ -462,6 +463,42 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
                 ),
               ),
             ),
+
+            Container(
+              width: MediaQuery.of(context).size.width * 0.2,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    child: Text(
+                      "Debit",
+                      maxLines: 2,
+                      softWrap: true,
+                      overflow: TextOverflow.ellipsis,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  ledgerModelList == null || ledgerModelList.length == 0
+                      ? Container()
+                      : Container(
+                    child: Text(
+                      "" + totalDebit.toString(),
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             Container(
               width: MediaQuery.of(context).size.width * 0.2,
               child: Column(
@@ -489,41 +526,6 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
                             textAlign: TextAlign.center,
                             style: TextStyle(
                               color: Colors.green,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ),
-                ],
-              ),
-            ),
-            Container(
-              width: MediaQuery.of(context).size.width * 0.2,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    child: Text(
-                      "Debit",
-                      maxLines: 2,
-                      softWrap: true,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                  ledgerModelList == null || ledgerModelList.length == 0
-                      ? Container()
-                      : Container(
-                          child: Text(
-                            "" + totalDebit.toString(),
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.red,
                               fontSize: 12,
                               fontWeight: FontWeight.w800,
                             ),
@@ -755,11 +757,10 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
   }
 
   selectStartDate(BuildContext context) async {
-    //  DateTime initDate = DateTime.now();
     final DateTime picked = await showDatePicker(
       context: context,
 
-      initialDate: DateTime(2015), // Refer step 1
+      initialDate: DateTime(2015),
       firstDate: DateTime(2015),
       lastDate: DateTime(2040),
     );
@@ -780,7 +781,23 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
         }
 
         startDateMilli = picked.millisecondsSinceEpoch;
+        getFetchLedgerOpeningBalance(widget.iD,startDateMilli);
       });
+  }
+
+  void getFetchLedgerOpeningBalance(int partID,int startDateMilli){
+
+
+    dbProvider
+        .fetchLedgerOpening(widget.iD, startDateMilli)
+        .then((value) {
+
+      if(value!=null ){
+        setState(() {
+          opening = value;
+        });
+      }
+    });
   }
 
   selectEndDate(BuildContext context) async {
@@ -870,6 +887,9 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
 
         loading = false;
       });
+
+      getFetchLedgerOpeningBalance(widget.iD,startDateMilli);
+
       Navigator.pop(context);
     });
   }
@@ -1079,42 +1099,12 @@ class LedgerItem extends StatelessWidget {
                             ],
                           ),
                         ),
-                        isKeyNotNull(_item.credit) && _item.credit != 0
-                            ? Container(
-                                width: MediaQuery.of(context).size.width * 0.2,
-                                margin: EdgeInsets.fromLTRB(12.0, 1.0, .0, 0.0),
-                                child: Text(
-                                  _item.credit.toString(),
-                                  maxLines: 1,
-                                  softWrap: true,
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    color: Colors.green,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              )
-                            : Container(
-                                width: MediaQuery.of(context).size.width * 0.2,
-                                child: Text(
-                                  "",
-                                  textAlign: TextAlign.center,
-                                  maxLines: 1,
-                                  softWrap: true,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
                         isKeyNotNull(_item.debit) && _item.debit != 0
                             ? Container(
                                 width: MediaQuery.of(context).size.width * 0.2,
-                                child: Text(
+                          margin: EdgeInsets.fromLTRB(12.0, 1.0, .0, 0.0),
+
+                          child: Text(
                                   _item.debit.toString(),
                                   textAlign: TextAlign.center,
                                   maxLines: 1,
@@ -1142,6 +1132,39 @@ class LedgerItem extends StatelessWidget {
                                   ),
                                 ),
                               ),
+
+
+                        isKeyNotNull(_item.credit) && _item.credit != 0
+                            ? Container(
+                          width: MediaQuery.of(context).size.width * 0.2,
+                          child: Text(
+                            _item.credit.toString(),
+                            maxLines: 1,
+                            softWrap: true,
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Colors.green,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        )
+                            : Container(
+                          width: MediaQuery.of(context).size.width * 0.2,
+                          child: Text(
+                            "",
+                            textAlign: TextAlign.center,
+                            maxLines: 1,
+                            softWrap: true,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 13,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                   ),

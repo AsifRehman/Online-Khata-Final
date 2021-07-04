@@ -4,6 +4,7 @@ import 'package:onlinekhata/sqflite_database/DbProvider.dart';
 import 'package:onlinekhata/sqflite_database/model/PartyModel.dart';
 import 'package:onlinekhata/ui/ledger_detail.dart';
 import 'package:onlinekhata/utils/custom_loader_dialog.dart';
+import 'dart:io' show Platform;
 
 class HomeScreen extends StatefulWidget {
   static String id = 'home_screen';
@@ -47,11 +48,24 @@ class _HomeScreenState extends State<HomeScreen> {
                 width: MediaQuery.of(context).size.width - 1,
                 child: Row(
                   children: [
+                    Platform.isIOS?
+                      // iOS-specific code
+                      Container(
+
+                      child: new IconButton(
+                        icon: Image.asset(
+                          'assets/ic_back.png',
+                          width: 40,
+                          height: 40,
+                          color: Colors.white,
+                        ),
+                        onPressed: () => Navigator.of(context).pop(),
+                      ),
+                    ):Container(),
                     Container(
-                      margin: EdgeInsets.fromLTRB(0.0, 0, 0.0, 0.0),
                       child: Container(
                         height: 40,
-                        margin: EdgeInsets.fromLTRB(20.0, 15, 0.0, 0.0),
+                        margin: EdgeInsets.fromLTRB(10.0, 15, 0.0, 0.0),
                         child: new Text(
                           'Online Khata',
                           style: TextStyle(
@@ -89,16 +103,36 @@ class _HomeScreenState extends State<HomeScreen> {
                       autofocus: false,
                       textInputAction: TextInputAction.done,
                       onSubmitted: (v) {
-                        if (v.length == 0) {
-                          // getParties();
+                        if (v.length >0) {
+
+                              showLoaderDialog(context);
+
+                              setState(() {
+                                loading = true;
+                              });
+                              dbProvider
+                                  .fetchPartyLegSumByPartName(
+                                  searchController.text.toLowerCase().toString())
+                                  .then((value) {
+                                partyModelList = value;
+
+                                Navigator.pop(context);
+
+                                setState(() {
+                                  loading = false;
+                                });
+                              });
+
                         }
                       },
                       onChanged: (v) {
-                        if (v.length == 0) {
-                          // getParties();
-                        }
                       },
                       decoration: InputDecoration(
+                          suffixIcon: IconButton(
+                            onPressed: searchController.clear,
+                            icon: Icon(Icons.clear),
+                            iconSize: 20,
+                          ),
                           labelStyle: new TextStyle(color: Colors.grey),
                           border: new UnderlineInputBorder(
                               borderSide: new BorderSide(color: Colors.blue)),
@@ -227,22 +261,22 @@ class PartiesItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return new Container(
       color: Colors.white,
-      height: 85,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: <Widget>[
-          Divider(
-            height: 3.0,
-            color: Colors.grey,
-          ),
+          // Divider(
+          //   height: 3.0,
+          //   color: Colors.grey,
+          // ),
           Container(
-              margin: EdgeInsets.fromLTRB(2.0, 0.0, 13.0, 2.0),
+              margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+              color: index%2==0?Color(0xffF5F5F5):Colors.white,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   Expanded(
                     child: Container(
-                        margin: EdgeInsets.fromLTRB(10.0, 0.0, 0.0, 0.0),
+                        margin: EdgeInsets.fromLTRB(10.0, 5.0, 0.0, 5.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
@@ -374,42 +408,46 @@ class PartiesItem extends StatelessWidget {
                           ],
                         )),
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Container(
-                        margin: EdgeInsets.fromLTRB(3.0, 0.0, 0.0, 0.0),
-                        child: Text(
-                          'RS ' + _item.total.abs().toString(),
-                          textAlign: TextAlign.right,
-                          maxLines: 1,
-                          softWrap: true,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: (int.parse(_item.total.toString())) > 0
-                                ? Colors.red
-                                : Colors.green,
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w600,
+                  Container(
+                    margin: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
+
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Container(
+                          margin: EdgeInsets.fromLTRB(3.0, 0.0, 0.0, 0.0),
+                          child: Text(
+                            'RS ' + _item.total.abs().toString(),
+                            textAlign: TextAlign.right,
+                            maxLines: 1,
+                            softWrap: true,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: (int.parse(_item.total.toString())) > 0
+                                  ? Colors.red
+                                  : Colors.green,
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
-                      ),
-                      Container(
-                        margin: EdgeInsets.fromLTRB(0.0, 2.0, 3.0, 0.0),
-                        child: Text(
-                          'Total',
-                          textAlign: TextAlign.right,
-                          maxLines: 1,
-                          softWrap: true,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: Colors.black54,
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w400,
+                        Container(
+                          margin: EdgeInsets.fromLTRB(0.0, 2.0, 3.0, 0.0),
+                          child: Text(
+                            'Total',
+                            textAlign: TextAlign.right,
+                            maxLines: 1,
+                            softWrap: true,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Colors.black54,
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w400,
+                            ),
                           ),
-                        ),
-                      )
-                    ],
+                        )
+                      ],
+                    ),
                   ),
                 ],
               )),
