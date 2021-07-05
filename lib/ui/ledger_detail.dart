@@ -64,7 +64,6 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
           });
         }
         getLedgerDataFromLocalDB(widget.iD);
-
       }
     });
 
@@ -86,7 +85,7 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
             buildLedgerHeading(context),
             buildLedgerDetail(),
             ledgerModelList != null && ledgerModelList.length > 0
-                ?  buildPDFbuttons(context, width)
+                ? buildPDFbuttons(context, width)
                 : Container()
           ],
         ),
@@ -440,6 +439,8 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
   }
 
   Container buildLedgerHeading(BuildContext context) {
+    final oCcy = new NumberFormat("#,##0", "en_US");
+
     return Container(
       margin: EdgeInsets.fromLTRB(15.0, 15.0, 12.0, 10.0),
       color: Colors.black12,
@@ -463,7 +464,6 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
                 ),
               ),
             ),
-
             Container(
               width: MediaQuery.of(context).size.width * 0.2,
               child: Column(
@@ -486,16 +486,16 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
                   ledgerModelList == null || ledgerModelList.length == 0
                       ? Container()
                       : Container(
-                    child: Text(
-                      "" + totalDebit.toString(),
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ),
+                          child: Text(
+                            "" + oCcy.format(totalDebit).toString(),
+                            textAlign: TextAlign.right,
+                            style: TextStyle(
+                              color: Colors.red,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ),
                 ],
               ),
             ),
@@ -522,8 +522,8 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
                       ? Container()
                       : Container(
                           child: Text(
-                            "" + totalCredit.toString(),
-                            textAlign: TextAlign.center,
+                            "" + oCcy.format(totalCredit).toString(),
+                            textAlign: TextAlign.right,
                             style: TextStyle(
                               color: Colors.green,
                               fontSize: 12,
@@ -759,7 +759,6 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
   selectStartDate(BuildContext context) async {
     final DateTime picked = await showDatePicker(
       context: context,
-
       initialDate: DateTime(2015),
       firstDate: DateTime(2015),
       lastDate: DateTime(2040),
@@ -781,18 +780,13 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
         }
 
         startDateMilli = picked.millisecondsSinceEpoch;
-        getFetchLedgerOpeningBalance(widget.iD,startDateMilli);
+        getFetchLedgerOpeningBalance(widget.iD, startDateMilli);
       });
   }
 
-  void getFetchLedgerOpeningBalance(int partID,int startDateMilli){
-
-
-    dbProvider
-        .fetchLedgerOpening(widget.iD, startDateMilli)
-        .then((value) {
-
-      if(value!=null ){
+  void getFetchLedgerOpeningBalance(int partID, int startDateMilli) {
+    dbProvider.fetchLedgerOpening(widget.iD, startDateMilli).then((value) {
+      if (value != null) {
         setState(() {
           opening = value;
         });
@@ -888,7 +882,7 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
         loading = false;
       });
 
-      getFetchLedgerOpeningBalance(widget.iD,startDateMilli);
+      getFetchLedgerOpeningBalance(widget.iD, startDateMilli);
 
       Navigator.pop(context);
     });
@@ -906,6 +900,7 @@ class LedgerItem extends StatelessWidget {
     DateTime datetime = DateTime.fromMillisecondsSinceEpoch(_item.date);
     final DateFormat formatter = DateFormat('dd MMM yyyy');
     String formatted = formatter.format(datetime);
+    final oCcy = new NumberFormat("#,##0", "en_US");
 
     totalBalance =
         isKyNotNull(_item.debit) ? totalBalance + _item.debit : totalBalance;
@@ -1102,11 +1097,10 @@ class LedgerItem extends StatelessWidget {
                         isKeyNotNull(_item.debit) && _item.debit != 0
                             ? Container(
                                 width: MediaQuery.of(context).size.width * 0.2,
-                          margin: EdgeInsets.fromLTRB(12.0, 1.0, .0, 0.0),
-
-                          child: Text(
-                                  _item.debit.toString(),
-                                  textAlign: TextAlign.center,
+                                margin: EdgeInsets.fromLTRB(12.0, 1.0, .0, 0.0),
+                                child: Text(
+                                  oCcy.format(_item.debit).toString(),
+                                  textAlign: TextAlign.right,
                                   maxLines: 1,
                                   softWrap: true,
                                   overflow: TextOverflow.ellipsis,
@@ -1132,39 +1126,37 @@ class LedgerItem extends StatelessWidget {
                                   ),
                                 ),
                               ),
-
-
                         isKeyNotNull(_item.credit) && _item.credit != 0
                             ? Container(
-                          width: MediaQuery.of(context).size.width * 0.2,
-                          child: Text(
-                            _item.credit.toString(),
-                            maxLines: 1,
-                            softWrap: true,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.green,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        )
+                                width: MediaQuery.of(context).size.width * 0.2,
+                                child: Text(
+                                  oCcy.format(_item.credit).toString(),
+                                  maxLines: 1,
+                                  softWrap: true,
+                                  overflow: TextOverflow.ellipsis,
+                                  textAlign: TextAlign.right,
+                                  style: TextStyle(
+                                    color: Colors.green,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              )
                             : Container(
-                          width: MediaQuery.of(context).size.width * 0.2,
-                          child: Text(
-                            "",
-                            textAlign: TextAlign.center,
-                            maxLines: 1,
-                            softWrap: true,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontSize: 13,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
+                                width: MediaQuery.of(context).size.width * 0.2,
+                                child: Text(
+                                  "",
+                                  textAlign: TextAlign.center,
+                                  maxLines: 1,
+                                  softWrap: true,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(
+                                    color: Colors.black,
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
                       ],
                     ),
                   ),
