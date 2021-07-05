@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:onlinekhata/sqflite_database/DbProvider.dart';
 import 'package:onlinekhata/sqflite_database/model/PartyModel.dart';
 import 'package:onlinekhata/ui/ledger_detail.dart';
 import 'package:onlinekhata/utils/custom_loader_dialog.dart';
 import 'dart:io' show Platform;
+import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
   static String id = 'home_screen';
@@ -15,6 +15,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool loading = true;
+
+  final oCcy = new NumberFormat("#,##0.00", "en_US");
 
   TextEditingController searchController = TextEditingController();
   DbProvider dbProvider = DbProvider();
@@ -48,20 +50,21 @@ class _HomeScreenState extends State<HomeScreen> {
                 width: MediaQuery.of(context).size.width - 1,
                 child: Row(
                   children: [
-                    Platform.isIOS?
-                      // iOS-specific code
-                      Container(
-
-                      child: new IconButton(
-                        icon: Image.asset(
-                          'assets/ic_back.png',
-                          width: 40,
-                          height: 40,
-                          color: Colors.white,
-                        ),
-                        onPressed: () => Navigator.of(context).pop(),
-                      ),
-                    ):Container(),
+                    Platform.isIOS
+                        ?
+                        // iOS-specific code
+                        Container(
+                            child: new IconButton(
+                              icon: Image.asset(
+                                'assets/ic_back.png',
+                                width: 40,
+                                height: 40,
+                                color: Colors.white,
+                              ),
+                              onPressed: () => Navigator.of(context).pop(),
+                            ),
+                          )
+                        : Container(),
                     Container(
                       child: Container(
                         height: 40,
@@ -103,30 +106,28 @@ class _HomeScreenState extends State<HomeScreen> {
                       autofocus: false,
                       textInputAction: TextInputAction.done,
                       onSubmitted: (v) {
-                        if (v.length >0) {
+                        if (v.length > 0) {
+                          showLoaderDialog(context);
 
-                              showLoaderDialog(context);
+                          setState(() {
+                            loading = true;
+                          });
+                          dbProvider
+                              .fetchPartyLegSumByPartName(searchController.text
+                                  .toLowerCase()
+                                  .toString())
+                              .then((value) {
+                            partyModelList = value;
 
-                              setState(() {
-                                loading = true;
-                              });
-                              dbProvider
-                                  .fetchPartyLegSumByPartName(
-                                  searchController.text.toLowerCase().toString())
-                                  .then((value) {
-                                partyModelList = value;
+                            Navigator.pop(context);
 
-                                Navigator.pop(context);
-
-                                setState(() {
-                                  loading = false;
-                                });
-                              });
-
+                            setState(() {
+                              loading = false;
+                            });
+                          });
                         }
                       },
-                      onChanged: (v) {
-                      },
+                      onChanged: (v) {},
                       decoration: InputDecoration(
                           suffixIcon: IconButton(
                             onPressed: searchController.clear,
@@ -254,6 +255,7 @@ class _HomeScreenState extends State<HomeScreen> {
 class PartiesItem extends StatelessWidget {
   final PartyModel _item;
   final int index;
+  final oCcy = new NumberFormat("#,##0", "en_US");
 
   PartiesItem(this._item, this.index);
 
@@ -270,7 +272,7 @@ class PartiesItem extends StatelessWidget {
           // ),
           Container(
               margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-              color: index%2==0?Color(0xffF5F5F5):Colors.white,
+              color: index % 2 == 0 ? Color(0xffF5F5F5) : Colors.white,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
@@ -410,14 +412,13 @@ class PartiesItem extends StatelessWidget {
                   ),
                   Container(
                     margin: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
-
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Container(
                           margin: EdgeInsets.fromLTRB(3.0, 0.0, 0.0, 0.0),
                           child: Text(
-                            'RS ' + _item.total.abs().toString(),
+                            'RS ' + oCcy.format(_item.total.abs()).toString(),
                             textAlign: TextAlign.right,
                             maxLines: 1,
                             softWrap: true,
