@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:onlinekhata/ui/home_screen.dart';
 
 import 'package:onlinekhata/mongo_db/db_connection.dart';
@@ -316,16 +315,10 @@ class HomeButton extends StatelessWidget {
       onTap: () {
         getUserName().then((value) {
           if (value != null && value != "") {
-            String userName = value;
-
             getPassword().then((value) {
               if (value != null && value != "") {
-                String password = value;
-
                 getDatabaseName().then((value) {
                   if (value != null && value != "") {
-                    String databaseName = value;
-
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) => HomeScreen()));
                   }
