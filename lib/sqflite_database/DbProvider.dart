@@ -210,9 +210,10 @@ class DbProvider {
 
   Future<bool> isLedgerExists(int id) async {
     final sqliteDb = await init();
-    final result = await sqliteDb
-        .rawQuery("SELECT IFNULL(id,0) as id FROM Ledger WHERE id=$id");
-    return result.isEmpty ? false : result[0][id] > 0;
+    final result = await sqliteDb.rawQuery(
+      "SELECT IFNULL(id,0) as id FROM Ledger WHERE id=$id",
+    );
+    return result.isEmpty ? false : true;
   }
 
   Future<int> fetchLedgerLastTs() async {
