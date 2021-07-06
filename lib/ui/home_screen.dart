@@ -306,7 +306,7 @@ class PartiesItem extends StatelessWidget {
                                   margin:
                                       EdgeInsets.fromLTRB(0.0, 3.0, 3.0, 0.0),
                                   child: Text(
-                                    'Pending:',
+                                    'Total Debit:',
                                     textAlign: TextAlign.right,
                                     maxLines: 1,
                                     softWrap: true,
@@ -360,7 +360,7 @@ class PartiesItem extends StatelessWidget {
                                   margin:
                                       EdgeInsets.fromLTRB(0.0, 3.0, 3.0, 0.0),
                                   child: Text(
-                                    'Received:',
+                                    'Total Credit:',
                                     textAlign: TextAlign.right,
                                     maxLines: 1,
                                     softWrap: true,
