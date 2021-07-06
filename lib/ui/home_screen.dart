@@ -323,7 +323,10 @@ class PartiesItem extends StatelessWidget {
                                         margin: EdgeInsets.fromLTRB(
                                             7.0, 3.0, 3.0, 0.0),
                                         child: Text(
-                                          'RS ' + _item.debit.toString(),
+                                          'RS ' +
+                                              oCcy
+                                                  .format(_item.debit)
+                                                  .toString(),
                                           textAlign: TextAlign.right,
                                           maxLines: 1,
                                           softWrap: true,
@@ -377,7 +380,10 @@ class PartiesItem extends StatelessWidget {
                                         margin: EdgeInsets.fromLTRB(
                                             3.0, 3.0, 3.0, 0.0),
                                         child: Text(
-                                          'RS ' + _item.credit.toString(),
+                                          'RS ' +
+                                              oCcy
+                                                  .format(_item.credit)
+                                                  .toString(),
                                           textAlign: TextAlign.right,
                                           maxLines: 1,
                                           softWrap: true,
@@ -435,7 +441,7 @@ class PartiesItem extends StatelessWidget {
                         Container(
                           margin: EdgeInsets.fromLTRB(0.0, 2.0, 3.0, 0.0),
                           child: Text(
-                            'Total',
+                            'Balance',
                             textAlign: TextAlign.right,
                             maxLines: 1,
                             softWrap: true,
