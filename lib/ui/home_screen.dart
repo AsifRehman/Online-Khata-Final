@@ -151,7 +151,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   GestureDetector(
                     onTap: () {
                       if (searchController.text.toString().length > 0) {
-                        // onSearchTextChanged(searchController.text.toString());
                         setState(() {
                           loading = true;
                         });
@@ -216,6 +215,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       partName:
                                                           partyModelList[index]
                                                               .partyName,
+                                                      partyMobileNo1:
+                                                      partyModelList[index]
+                                                          .mobile1,
+                                                      partyMobileNo2:
+                                                      partyModelList[index]
+                                                          .mobile2,
                                                     )));
                                       },
                                       child: new PartiesItem(
@@ -266,10 +271,7 @@ class PartiesItem extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: <Widget>[
-          // Divider(
-          //   height: 3.0,
-          //   color: Colors.grey,
-          // ),
+
           Container(
               margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
               color: index % 2 == 0 ? Color(0xffF5F5F5) : Colors.white,

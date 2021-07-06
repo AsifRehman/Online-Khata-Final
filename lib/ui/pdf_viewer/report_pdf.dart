@@ -55,13 +55,6 @@ generatePdfReport(context, String partName, List<LedgerModel> list,
         totalBal));
   }
 
-  // pdf.addPage(pw.Page(
-  //     pageFormat: PdfPageFormat.a4,
-  //
-  //     build: (pw.Context context) {
-  //       return  pw.Text("Hello World"); // Center
-  //     })); // Page
-
   // Data table
   final table = pw.Table.fromTextArray(
     border: null,
@@ -123,8 +116,6 @@ generatePdfReport(context, String partName, List<LedgerModel> list,
             alignment: Alignment.centerRight,
             margin: const EdgeInsets.only(bottom: 3.0 * PdfPageFormat.mm),
             padding: const EdgeInsets.only(bottom: 3.0 * PdfPageFormat.mm),
-            // decoration: const BoxDecoration(
-            //     border: BoxBorder(bottom: true, width: 0.5, color: PdfColors.grey)),
             child: Text('Ledger Report',
                 style: Theme.of(context)
                     .defaultTextStyle
@@ -140,19 +131,12 @@ generatePdfReport(context, String partName, List<LedgerModel> list,
                     .copyWith(color: PdfColors.grey)));
       },
       build: (Context context) => <Widget>[
-        // Header(
-        //     level: 1,
-        //     child:  pw.FlatButton(
-        //       child: material.Image.asset("name")
-        //     ),
-        // ),
             Header(
                 level: 0,
                 child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      // material.Image.asset("assets/ic_back.png"),
-                      // material.FlatButton(),
+
                       Text('Online Khata',
                           textScaleFactor: 2,
                           style: Theme.of(context)
@@ -263,11 +247,6 @@ generatePdfReport(context, String partName, List<LedgerModel> list,
     DateTime now = DateTime.now();
     String formattedDate = DateFormat('kk:mm:ss EEE d MMM').format(now);
 
-    String folderName = "Online khata Reports";
-    var dirPath = "storage/emulated/0/$folderName";
-    // var createReportDir = await new Directory(dirPath).create();
-    // var directory  = await  getApplicationDocumentsDirectory();
-
     Directory dir;
     if (Platform.isAndroid) {
       String folderName = "Online khata Reports";
@@ -309,30 +288,6 @@ generatePdfReport(context, String partName, List<LedgerModel> list,
 
 }
 
-// String folderName = "Online khata Reports";
-// var dirPath = "storage/emulated/0/$folderName";
-// // var createReportDir = await new Directory(dirPath).create();
-// // var directory  = await  getApplicationDocumentsDirectory();
-//
-// // var dir = (await getExternalStorageDirectory());
-// // var createReportDir = await new Directory('${dir.path}/Online khata Reports').create(recursive: true);
-//
-// // final String filePath = '${_downloadsDirectory.path}/Report_$formattedDate.pdf';
-// final String filePath = _downloadsDirectory.path+'/Report_$formattedDate.pdf';
-// final File file = File(filePath);
-//
-// await file.writeAsBytes(pdf.save()).then((value) {
-// if (viewOrDownload == "from_share") {
-// Share.shareFiles(['${_downloadsDirectory.path}/Report_$formattedDate.pdf'],
-// text: '');
-// } else {
-// material.Navigator.of(context).push(
-// material.MaterialPageRoute(
-// builder: (_) => PdfViewerPage(path: filePath),
-// ),
-// );
-// }
-// });
 
 Future<void> initDownloadsDirectoryState() async {
   Directory downloadsDirectory;

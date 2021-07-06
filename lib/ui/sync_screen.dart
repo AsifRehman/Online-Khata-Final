@@ -296,9 +296,6 @@ class _SyncScreenState extends State<SyncScreen> {
     );
   }
 
-// int getDateTimeFormat(Timestamp date) {
-//   return date.microsecondsSinceEpoch;
-// }
 }
 
 class HomeButton extends StatelessWidget {

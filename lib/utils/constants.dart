@@ -97,6 +97,14 @@ String getDateFromMillisecound(int milliseconds){
 
   return formatted;
 }
+String getDateFromMillisecoundDate(int milliseconds){
+
+
+  DateTime datetime = DateTime.fromMillisecondsSinceEpoch(milliseconds);
+  final DateFormat formatter = DateFormat('dd MMM yyyy');
+  String formatted = formatter.format(datetime);
+  return formatted;
+}
 
 String getCurrentDate(){
   DateTime now = DateTime.now();

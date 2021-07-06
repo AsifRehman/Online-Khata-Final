@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_sms/flutter_sms.dart';
 import 'package:intl/intl.dart';
 import 'package:onlinekhata/sqflite_database/DbProvider.dart';
 import 'package:onlinekhata/sqflite_database/model/LedgerModel.dart';
@@ -14,12 +15,23 @@ class LedgerDetailScreen extends StatefulWidget {
 
   final int iD;
   final String partName;
+  final String partyMobileNo1;
+  final String partyMobileNo2;
 
-  const LedgerDetailScreen({Key key, this.iD, this.partName}) : super(key: key);
+  const LedgerDetailScreen(
+      {Key key,
+      this.iD,
+      this.partName,
+      this.partyMobileNo1,
+      this.partyMobileNo2})
+      : super(key: key);
 
   @override
-  _LedgerDetailScreenState createState() =>
-      _LedgerDetailScreenState(iD: this.iD, partName: this.partName);
+  _LedgerDetailScreenState createState() => _LedgerDetailScreenState(
+      iD: this.iD,
+      partName: this.partName,
+      partyMobileNo1: this.partyMobileNo1,
+      partyMobileNo2: this.partyMobileNo2);
 }
 
 int totalDebit = 0;
@@ -29,10 +41,11 @@ int totalBalance = 0;
 class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
   int iD;
   String partName;
+  String partyMobileNo1;
+  String partyMobileNo2;
 
   bool loading = true;
-  List<dynamic> dateStart = ["2021-04-27 19:02:51.000Z"];
-  List<dynamic> dateEnd = ["2021-05-25 19:02:51.000Z"];
+
   int opening = 0;
   int closing = 0;
 
@@ -43,7 +56,11 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
   int startDateMilli, endDateMilli;
   String startDateStr = "", endDateStr = "";
 
-  _LedgerDetailScreenState({this.iD, this.partName});
+  String smsMessage = "";
+  List<String> recipients = [];
+
+  _LedgerDetailScreenState(
+      {this.iD, this.partName, this.partyMobileNo1, this.partyMobileNo2});
 
   @override
   void dispose() {
@@ -241,9 +258,9 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
               }
             },
             child: Container(
-              width: width * 0.45,
+              width: 88,
               height: 35,
-              margin: const EdgeInsets.all(5.0),
+              margin: const EdgeInsets.all(4.0),
               padding: const EdgeInsets.all(5.0),
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.blueAccent),
@@ -253,12 +270,51 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset("assets/ic_view.png",
-                      width: 18, height: 18, color: Colors.blueAccent),
+                      width: 16, height: 16, color: Colors.blueAccent),
                   Container(
-                      margin: EdgeInsets.fromLTRB(5.0, 0, 0.0, 0.0),
+                      margin: EdgeInsets.fromLTRB(2.0, 0, 0.0, 0.0),
                       child: Text(
-                        'Downlaod PDF',
-                        style: TextStyle(color: Colors.blueAccent),
+                        'Download',
+                        style:
+                            TextStyle(color: Colors.blueAccent, fontSize: 13),
+                      )),
+                ],
+              ),
+            ),
+          ),
+          GestureDetector(
+            onTap: () {
+              recipients.clear();
+
+              if (isKeyNotNull(partyMobileNo1)) {
+                recipients.add(partyMobileNo1);
+              }
+              if (isKeyNotNull(partyMobileNo2)) {
+                recipients.add(partyMobileNo2);
+              }
+
+              _sendSMS(getMsgLedgerFormat(), recipients);
+            },
+            child: Container(
+              width: 80,
+              height: 35,
+              margin: const EdgeInsets.all(4.0),
+              padding: const EdgeInsets.all(5.0),
+              decoration: BoxDecoration(
+                border: Border.all(color: Colors.blueAccent),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Image.asset("assets/ic_sms.png",
+                      width: 16, height: 16, color: Colors.blueAccent),
+                  Container(
+                      margin: EdgeInsets.fromLTRB(3.0, 0, 0.0, 0.0),
+                      child: Text(
+                        'Sms',
+                        style:
+                            TextStyle(color: Colors.blueAccent, fontSize: 13),
                       )),
                 ],
               ),
@@ -384,9 +440,9 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
               }
             },
             child: Container(
-              width: width * 0.45,
+              width: 80,
               height: 35,
-              margin: const EdgeInsets.all(5.0),
+              margin: const EdgeInsets.all(4.0),
               padding: const EdgeInsets.all(5.0),
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.blueAccent),
@@ -396,12 +452,13 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset("assets/ic_share.png",
-                      width: 18, height: 18, color: Colors.blueAccent),
+                      width: 16, height: 16, color: Colors.blueAccent),
                   Container(
-                      margin: EdgeInsets.fromLTRB(5.0, 0, 0.0, 0.0),
+                      margin: EdgeInsets.fromLTRB(4.0, 0, 0.0, 0.0),
                       child: Text(
                         'Share',
-                        style: TextStyle(color: Colors.blueAccent),
+                        style:
+                            TextStyle(color: Colors.blueAccent, fontSize: 13),
                       )),
                 ],
               ),
@@ -410,6 +467,69 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
         ],
       ),
     );
+  }
+
+  String getMsgLedgerFormat() {
+    final oCcy = new NumberFormat("#,##0", "en_US");
+
+    int totalBal = 0;
+    smsMessage += "Start Date: " + startDateStr;
+    smsMessage += "\n";
+    smsMessage += "End Date: " + endDateStr;
+    smsMessage += "\n";
+    smsMessage += "Opening: " + oCcy.format(opening).toString();
+    smsMessage += "\n";
+    smsMessage += "Closing: " + oCcy.format(closing).toString();
+    smsMessage += "\n";
+
+    smsMessage += "Total Debit: " + oCcy.format(totalDebit).toString();
+    smsMessage += "\n";
+    smsMessage += "Total Credit: " + oCcy.format(totalCredit).toString();
+    smsMessage += "\n\n";
+
+    for (int i = 0; i < ledgerModelList.length; i++) {
+      if (isKeyNotNull(ledgerModelList[i].vocNo)) {
+        smsMessage += "VocNo: " + ledgerModelList[i].vocNo.toString();
+        smsMessage += "\n";
+      }
+
+      if (isKeyNotNull(ledgerModelList[i].tType)) {
+        smsMessage += "TType: " + ledgerModelList[i].tType.toString();
+        smsMessage += "\n";
+      }
+
+      // totalBal = isKyNotNull(ledgerModelList[i].debit)
+      //     ? totalBal + ledgerModelList[i].debit
+      //     : totalBal;
+      // totalBal = isKyNotNull(ledgerModelList[i].credit)
+      //     ? totalBal - ledgerModelList[i].credit
+      //     : totalBal;
+      //
+      // smsMessage += "Balance: RS " + totalBal.abs().toString();
+      // smsMessage += "\n";
+
+      smsMessage += "Description: " + ledgerModelList[i].description.toString();
+      smsMessage += "\n";
+
+      if (isKeyNotNull(ledgerModelList[i].date)) {
+        smsMessage +=
+            "Date: " + getDateFromMillisecoundDate(ledgerModelList[i].date);
+        smsMessage += "\n";
+      }
+      if (isKeyNotNull(ledgerModelList[i].debit)) {
+        smsMessage +=
+            "Debit: " + oCcy.format(ledgerModelList[i].debit).toString();
+        smsMessage += "\n";
+      }
+      if (isKeyNotNull(ledgerModelList[i].credit)) {
+        smsMessage +=
+            "Credit: " + oCcy.format(ledgerModelList[i].credit).toString();
+        smsMessage += "\n";
+      }
+      smsMessage += "\n";
+    }
+
+    return smsMessage;
   }
 
   Expanded buildLedgerDetail() {
@@ -551,8 +671,7 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
               selectStartDate(context);
             },
             child: Container(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
+              child: Row(
                 children: [
                   Container(
                     child: Text(
@@ -565,7 +684,7 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.fromLTRB(0.0, 3.0, 0.0, 0.0),
+                    margin: EdgeInsets.fromLTRB(3.0, 0.0, 0.0, 0.0),
                     decoration: BoxDecoration(
                         border: Border.all(color: Colors.blueAccent),
                         borderRadius: BorderRadius.all(Radius.circular(5))),
@@ -588,8 +707,7 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
               selectEndDate(context);
             },
             child: Container(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
+              child: Row(
                 children: [
                   Container(
                     child: Text(
@@ -602,7 +720,7 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
                     ),
                   ),
                   Container(
-                    margin: EdgeInsets.fromLTRB(0.0, 3.0, 0.0, 0.0),
+                    margin: EdgeInsets.fromLTRB(3.0, 0.0, 0.0, 0.0),
                     decoration: BoxDecoration(
                         border: Border.all(
                           color: Colors.blueAccent,
@@ -627,6 +745,14 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
     );
   }
 
+  void _sendSMS(String message, List<String> recipients) async {
+    String _result = await sendSMS(message: message, recipients: recipients)
+        .catchError((onError) {
+      print(onError);
+    });
+    print(_result);
+  }
+
   Container buildOpeningClosing(BuildContext context) {
     return Container(
       margin: EdgeInsets.fromLTRB(14.0, 15.0, 14.0, 2.0),
@@ -634,8 +760,7 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Container(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+            child: Row(
               children: [
                 Container(
                   child: Text(
@@ -648,7 +773,7 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
                   ),
                 ),
                 Container(
-                  margin: EdgeInsets.fromLTRB(0.0, 3.0, 0.0, 0.0),
+                  margin: EdgeInsets.fromLTRB(3.0, 0.0, 0.0, 0.0),
                   decoration: BoxDecoration(
                       border: Border.all(color: Colors.blueAccent),
                       borderRadius: BorderRadius.all(Radius.circular(5))),
@@ -666,8 +791,7 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
             ),
           ),
           Container(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
+            child: Row(
               children: [
                 Container(
                   child: Text(
@@ -680,7 +804,7 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
                   ),
                 ),
                 Container(
-                  margin: EdgeInsets.fromLTRB(0.0, 3.0, 0.0, 0.0),
+                  margin: EdgeInsets.fromLTRB(3.0, 0.0, 0.0, 0.0),
                   decoration: BoxDecoration(
                       border: Border.all(
                         color: Colors.blueAccent,
@@ -757,31 +881,37 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
   }
 
   selectStartDate(BuildContext context) async {
-    final DateTime picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime(2015),
-      firstDate: DateTime(2015),
-      lastDate: DateTime(2040),
-    );
-    if (picked != null && picked != DateTime.now())
-      setState(() {
-        if (picked.day <= 9) {
-          startDateStr = "0" + picked.day.toString() + "-";
-        } else {
-          startDateStr = picked.day.toString() + "-";
-        }
+    try {
+      DateTime date = new DateTime.fromMillisecondsSinceEpoch(startDateMilli);
 
-        if (picked.month <= 9) {
-          startDateStr +=
-              "0" + picked.month.toString() + "-" + picked.year.toString();
-        } else {
-          startDateStr +=
-              picked.month.toString() + "-" + picked.year.toString();
-        }
+      final DateTime picked = await showDatePicker(
+        context: context,
+        initialDate: date,
+        firstDate: date,
+        lastDate: DateTime(2040),
+      );
+      if (picked != null && picked != DateTime.now())
+        setState(() {
+          if (picked.day <= 9) {
+            startDateStr = "0" + picked.day.toString() + "-";
+          } else {
+            startDateStr = picked.day.toString() + "-";
+          }
 
-        startDateMilli = picked.millisecondsSinceEpoch;
-        getFetchLedgerOpeningBalance(widget.iD, startDateMilli);
-      });
+          if (picked.month <= 9) {
+            startDateStr +=
+                "0" + picked.month.toString() + "-" + picked.year.toString();
+          } else {
+            startDateStr +=
+                picked.month.toString() + "-" + picked.year.toString();
+          }
+
+          startDateMilli = picked.millisecondsSinceEpoch;
+          getFetchLedgerOpeningBalance(widget.iD, startDateMilli);
+        });
+    } catch (e) {
+      int i = 0;
+    }
   }
 
   void getFetchLedgerOpeningBalance(int partID, int startDateMilli) {
@@ -795,33 +925,41 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
   }
 
   selectEndDate(BuildContext context) async {
-    final DateTime picked = await showDatePicker(
-      context: context,
+    try {
 
-      initialDate: DateTime.now(), // Refer step 1
-      firstDate: DateTime(2015),
-      lastDate: DateTime.now(),
-    );
-    if (picked != null && picked != DateTime.now())
-      setState(() {
-        if (picked.day <= 9) {
-          endDateStr = "0" + picked.day.toString() + "-";
-        } else {
-          endDateStr = picked.day.toString() + "-";
-        }
-        if (picked.month <= 9) {
-          endDateStr +=
-              "0" + picked.month.toString() + "-" + picked.year.toString();
-        } else {
-          endDateStr += picked.month.toString() + "-" + picked.year.toString();
-        }
+      DateTime date = new DateTime.fromMillisecondsSinceEpoch(startDateMilli);
 
-        loading = true;
-      });
-    endDateMilli = picked.millisecondsSinceEpoch;
-    showLoaderDialog(context);
+      final DateTime picked = await showDatePicker(
+        context: context,
 
-    getBetweenDatesData(startDateMilli, endDateMilli);
+        initialDate: DateTime.now(), // Refer step 1
+        firstDate: date,
+        lastDate: DateTime.now(),
+      );
+      if (picked != null && picked != DateTime.now())
+        setState(() {
+          if (picked.day <= 9) {
+            endDateStr = "0" + picked.day.toString() + "-";
+          } else {
+            endDateStr = picked.day.toString() + "-";
+          }
+          if (picked.month <= 9) {
+            endDateStr +=
+                "0" + picked.month.toString() + "-" + picked.year.toString();
+          } else {
+            endDateStr +=
+                picked.month.toString() + "-" + picked.year.toString();
+          }
+
+          loading = true;
+        });
+      endDateMilli = picked.millisecondsSinceEpoch;
+      showLoaderDialog(context);
+
+      getBetweenDatesData(startDateMilli, endDateMilli);
+    } catch (e) {
+      int i = 0;
+    }
   }
 
   void getBetweenDatesData(int startDateMilli, int endDate) {
@@ -1097,7 +1235,8 @@ class LedgerItem extends StatelessWidget {
                         isKeyNotNull(_item.debit) && _item.debit != 0
                             ? Container(
                                 width: MediaQuery.of(context).size.width * 0.2,
-                                margin: EdgeInsets.fromLTRB(12.0, 1.0, .0, 0.0),
+                                margin:
+                                    EdgeInsets.fromLTRB(12.0, 0.0, 0.0, 0.0),
                                 child: Text(
                                   oCcy.format(_item.debit).toString(),
                                   textAlign: TextAlign.right,
