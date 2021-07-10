@@ -53,7 +53,7 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
   List<LedgerModel> ledgerModelList = [];
 
   bool _checkConfiguration() => true;
-  int startDateMilli, endDateMilli;
+  int startDateMilli, endDateMilli,startDateForCalendarMilli;
   String startDateStr = "", endDateStr = "";
 
   String smsMessage = "";
@@ -472,62 +472,17 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
   String getMsgLedgerFormat() {
     final oCcy = new NumberFormat("#,##0", "en_US");
 
-    int totalBal = 0;
-    smsMessage += "Start Date: " + startDateStr;
-    smsMessage += "\n";
-    smsMessage += "End Date: " + endDateStr;
-    smsMessage += "\n";
-    smsMessage += "Opening: " + oCcy.format(opening).toString();
-    smsMessage += "\n";
-    smsMessage += "Closing: " + oCcy.format(closing).toString();
-    smsMessage += "\n";
-
-    smsMessage += "Total Debit: " + oCcy.format(totalDebit).toString();
-    smsMessage += "\n";
-    smsMessage += "Total Credit: " + oCcy.format(totalCredit).toString();
+    smsMessage += "Payment Request";
     smsMessage += "\n\n";
 
-    for (int i = 0; i < ledgerModelList.length; i++) {
-      if (isKeyNotNull(ledgerModelList[i].vocNo)) {
-        smsMessage += "VocNo: " + ledgerModelList[i].vocNo.toString();
-        smsMessage += "\n";
-      }
+    smsMessage += "Dear,";
+    smsMessage += "\n";
+    smsMessage += "Balance RS " +
+        oCcy.format(closing.abs()).toString() +
+        " is outstanding in your ledger.";
+    smsMessage += "\n";
 
-      if (isKeyNotNull(ledgerModelList[i].tType)) {
-        smsMessage += "TType: " + ledgerModelList[i].tType.toString();
-        smsMessage += "\n";
-      }
-
-      // totalBal = isKyNotNull(ledgerModelList[i].debit)
-      //     ? totalBal + ledgerModelList[i].debit
-      //     : totalBal;
-      // totalBal = isKyNotNull(ledgerModelList[i].credit)
-      //     ? totalBal - ledgerModelList[i].credit
-      //     : totalBal;
-      //
-      // smsMessage += "Balance: RS " + totalBal.abs().toString();
-      // smsMessage += "\n";
-
-      smsMessage += "Description: " + ledgerModelList[i].description.toString();
-      smsMessage += "\n";
-
-      if (isKeyNotNull(ledgerModelList[i].date)) {
-        smsMessage +=
-            "Date: " + getDateFromMillisecoundDate(ledgerModelList[i].date);
-        smsMessage += "\n";
-      }
-      if (isKeyNotNull(ledgerModelList[i].debit)) {
-        smsMessage +=
-            "Debit: " + oCcy.format(ledgerModelList[i].debit).toString();
-        smsMessage += "\n";
-      }
-      if (isKeyNotNull(ledgerModelList[i].credit)) {
-        smsMessage +=
-            "Credit: " + oCcy.format(ledgerModelList[i].credit).toString();
-        smsMessage += "\n";
-      }
-      smsMessage += "\n";
-    }
+    smsMessage += "Thank for your cooperation.";
 
     return smsMessage;
   }
@@ -754,6 +709,8 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
   }
 
   Container buildOpeningClosing(BuildContext context) {
+    final oCcy = new NumberFormat("#,##0", "en_US");
+
     return Container(
       margin: EdgeInsets.fromLTRB(14.0, 15.0, 14.0, 2.0),
       child: Row(
@@ -779,9 +736,9 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
                       borderRadius: BorderRadius.all(Radius.circular(5))),
                   padding: const EdgeInsets.all(4.0),
                   child: Text(
-                    opening.toString(),
+                    oCcy.format(opening.abs()).toString(),
                     style: TextStyle(
-                      color: Colors.grey,
+                      color: opening >= 0 ? Colors.red : Colors.green,
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
                     ),
@@ -812,9 +769,9 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
                       borderRadius: BorderRadius.all(Radius.circular(5))),
                   padding: const EdgeInsets.all(4.0),
                   child: Text(
-                    closing.toString(),
+                    oCcy.format(closing.abs()).toString(),
                     style: TextStyle(
-                      color: Colors.grey,
+                      color: closing >= 0 ? Colors.red : Colors.green,
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
                     ),
@@ -882,11 +839,12 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
 
   selectStartDate(BuildContext context) async {
     try {
-      DateTime date = new DateTime.fromMillisecondsSinceEpoch(startDateMilli);
+      DateTime date = new DateTime.fromMillisecondsSinceEpoch(startDateForCalendarMilli);
+      DateTime initialDate = new DateTime.fromMillisecondsSinceEpoch(startDateMilli);
 
       final DateTime picked = await showDatePicker(
         context: context,
-        initialDate: date,
+        initialDate: initialDate,
         firstDate: date,
         lastDate: DateTime(2040),
       );
@@ -926,12 +884,10 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
 
   selectEndDate(BuildContext context) async {
     try {
-
-      DateTime date = new DateTime.fromMillisecondsSinceEpoch(startDateMilli);
+      DateTime date = new DateTime.fromMillisecondsSinceEpoch(startDateForCalendarMilli);
 
       final DateTime picked = await showDatePicker(
         context: context,
-
         initialDate: DateTime.now(), // Refer step 1
         firstDate: date,
         lastDate: DateTime.now(),
@@ -1010,6 +966,7 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
             totalCredit = totalCredit + ledgerModelList[i].credit;
           }
           startDateMilli = ledgerModelList[i].date;
+          startDateForCalendarMilli = ledgerModelList[i].date;
         }
         if (isKeyNotNull(startDateMilli)) {
           startDateStr = getDateFromMillisecound(startDateMilli);
