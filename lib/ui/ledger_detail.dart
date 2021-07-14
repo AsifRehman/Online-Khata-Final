@@ -258,10 +258,10 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
               }
             },
             child: Container(
-              width: 88,
+              width: 105,
               height: 35,
               margin: const EdgeInsets.all(4.0),
-              padding: const EdgeInsets.all(5.0),
+              padding: const EdgeInsets.all(3.0),
               decoration: BoxDecoration(
                 border: Border.all(color: Colors.blueAccent),
                 borderRadius: BorderRadius.circular(10),
@@ -296,7 +296,7 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
               _sendSMS(getMsgLedgerFormat(), recipients);
             },
             child: Container(
-              width: 80,
+              width: 85,
               height: 35,
               margin: const EdgeInsets.all(4.0),
               padding: const EdgeInsets.all(5.0),
@@ -310,7 +310,7 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
                   Image.asset("assets/ic_sms.png",
                       width: 16, height: 16, color: Colors.blueAccent),
                   Container(
-                      margin: EdgeInsets.fromLTRB(3.0, 0, 0.0, 0.0),
+                      margin: EdgeInsets.fromLTRB(4.0, 0, 0.0, 0.0),
                       child: Text(
                         'Sms',
                         style:
@@ -440,7 +440,7 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
               }
             },
             child: Container(
-              width: 80,
+              width: 85,
               height: 35,
               margin: const EdgeInsets.all(4.0),
               padding: const EdgeInsets.all(5.0),
