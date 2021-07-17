@@ -1,5 +1,6 @@
 import 'package:downloads_path_provider/downloads_path_provider.dart';
 import 'package:flutter/services.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:onlinekhata/model/report_model.dart';
 import 'package:onlinekhata/sqflite_database/model/LedgerModel.dart';
@@ -13,10 +14,13 @@ import 'package:flutter/material.dart' as material;
 import 'package:pdf/widgets.dart';
 import 'package:share/share.dart';
 
-Directory _downloadsDirectory;
+// Directory _downloadsDirectory;
 
 generatePdfReport(context, String partName, List<LedgerModel> list,
     String viewOrDownload) async {
+
+  try {
+
   final Document pdf = Document();
   final baseColor = PdfColors.cyan;
   const tableHeaders = [
@@ -242,7 +246,6 @@ generatePdfReport(context, String partName, List<LedgerModel> list,
             table
           ]));
 
-  initDownloadsDirectoryState().then((value) async {
     //save PDF
     DateTime now = DateTime.now();
     String formattedDate = DateFormat('kk:mm:ss EEE d MMM').format(now);
@@ -282,24 +285,31 @@ generatePdfReport(context, String partName, List<LedgerModel> list,
         }
       });
     }
+  } on Exception catch (e) {
+    print('never reached');
+    showShortToast("Error:"+e.toString());
 
 
-  });
-
-}
-
-
-Future<void> initDownloadsDirectoryState() async {
-  Directory downloadsDirectory;
-  // Platform messages may fail, so we use a try/catch PlatformException.
-  try {
-    downloadsDirectory = await DownloadsPathProvider.downloadsDirectory;
-  } on PlatformException {
-    print('Could not get the downloads directory');
   }
 
-  _downloadsDirectory = downloadsDirectory;
 }
+
+void showShortToast(String msg) {
+  Fluttertoast.showToast(
+      msg: msg, toastLength: Toast.LENGTH_SHORT, timeInSecForIosWeb: 2);
+}
+
+// Future<void> initDownloadsDirectoryState() async {
+//   Directory downloadsDirectory;
+//   // Platform messages may fail, so we use a try/catch PlatformException.
+//   try {
+//     downloadsDirectory = await DownloadsPathProvider.downloadsDirectory;
+//   } on PlatformException {
+//     print('Could not get the downloads directory');
+//   }
+//
+//   _downloadsDirectory = downloadsDirectory;
+// }
 
 String getDateTimeFormat(int date) {
   DateTime datetime = DateTime.fromMillisecondsSinceEpoch(date);
