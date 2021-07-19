@@ -8,6 +8,7 @@ class LedgerModel {
   int debit;
   int credit;
   int ts;
+  // int bal;
 
   LedgerModel({
     this.id,
@@ -18,7 +19,8 @@ class LedgerModel {
     this.date,
     this.debit,
     this.credit,
-    this.ts,
+    this.ts
+    // this.bal,
   });
 
   Map<String, dynamic> toMap() {
@@ -32,7 +34,8 @@ class LedgerModel {
       "Date": date,
       "Debit": debit,
       "Credit": credit,
-      "ts": ts,
+      "ts": ts
+      // "Bal": bal,
     };
   }
 }

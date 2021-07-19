@@ -1131,7 +1131,8 @@ class LedgerItem extends StatelessWidget {
                                       margin: EdgeInsets.fromLTRB(
                                           0.0, 2.0, 0.0, 0.0),
                                       child: Text(
-                                        "RS " + totalBalance.abs().toString(),
+                                       "RS " + oCcy.format(totalBalance.abs()).toString(),
+                                       //  "RS " + _item.bal.abs().toString(),
                                         maxLines: 2,
                                         softWrap: true,
                                         overflow: TextOverflow.ellipsis,

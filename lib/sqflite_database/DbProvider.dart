@@ -134,6 +134,8 @@ class DbProvider {
         debit: isKyNotNull(v['Debit']) ? v['Debit'] : 0,
         credit: isKyNotNull(v['Credit']) ? v['Credit'] : 0,
         ts: v['ts'],
+        // bal: 0,
+
       );
       isUpdated = await isLedgerExists(v['_id']);
 
@@ -161,21 +163,6 @@ class DbProvider {
     sqliteDb.rawUpdate("UPDATE DelRecord SET LedgerDelTs=$maxTs");
   }
 
-  Future<List<PartyModel>> fetchParties() async {
-    final sqliteDb = await init();
-    final maps = await sqliteDb.query(partyTableName);
-
-    return List.generate(maps.length, (i) {
-      //create a list of Categories
-      return PartyModel(
-        partyID: maps[i]['partyID'],
-        partyName: maps[i]['partyName'],
-        debit: maps[i]['debit'],
-        credit: maps[i]['credit'],
-        total: maps[i]['total'],
-      );
-    });
-  }
 
   Future<List<PartyModel>> fetchPartyLegSum() async {
     final sqliteDb = await init();
@@ -231,24 +218,6 @@ class DbProvider {
     return result[0]["timestamp"];
   }
 
-  Future<List<PartyModel>> fetchPartyByPartName(String partyName) async {
-    //returns the Categories as a list (array)
-
-    final sqliteDb = await init();
-    final maps = await sqliteDb.query(partyTableName,
-        where: "LOWER(partyName) LIKE ?", whereArgs: ['%$partyName%']);
-
-    return List.generate(maps.length, (i) {
-      //create a list of Categories
-      return PartyModel(
-        partyID: maps[i]['partyID'],
-        partyName: maps[i]['partyName'],
-        debit: maps[i]['debit'],
-        credit: maps[i]['credit'],
-        total: maps[i]['total'],
-      );
-    });
-  }
 
   Future<List<PartyModel>> fetchPartyLegSumByPartName(String partyName) async {
     //returns the Categories as a list (array)
@@ -269,23 +238,6 @@ class DbProvider {
     });
   }
 
-  Future<List<LedgerModel>> fetchLedger() async {
-    final sqliteDb = await init();
-    final maps = await sqliteDb.query(partLegTable);
-
-    return List.generate(maps.length, (i) {
-      //create a list of Categories
-      return LedgerModel(
-        partyID: maps[i]['partyID'],
-        vocNo: maps[i]['vocNo'],
-        tType: maps[i]['tType'],
-        description: maps[i]['description'],
-        date: maps[i]['date'],
-        debit: maps[i]['debit'],
-        credit: maps[i]['credit'],
-      );
-    });
-  }
 
   Future<List<LedgerModel>> fetchLedgerByPartyId(int partyId) async {
     //returns the Categories as a list (array)
@@ -308,6 +260,7 @@ class DbProvider {
         date: maps[i]['date'],
         debit: maps[i]['debit'],
         credit: maps[i]['credit'],
+        // bal: maps[i]['Bal'],
       );
     });
   }
@@ -334,6 +287,8 @@ class DbProvider {
         date: maps[i]['date'],
         debit: maps[i]['debit'],
         credit: maps[i]['credit'],
+        // bal: maps[i]['Bal'],
+
       );
     });
   }
