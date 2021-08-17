@@ -22,6 +22,7 @@ class DbProvider {
       onCreate: (Database sqliteDb, int version) async {
         // await sqliteDb.execute(dateTable);
         await sqliteDb.execute(delRecordTable);
+        await sqliteDb.execute(delRecordTableInsert);
         await sqliteDb.execute(partyTable);
         await sqliteDb.execute(legderTable);
         await sqliteDb.execute(partLegTable);
@@ -38,11 +39,15 @@ class DbProvider {
 
   static const delRecordTable = """
           CREATE TABLE IF NOT EXISTS DelRecord (
-          partyDelTs INTEGER,
+          partyDelTs INTEGER PRIMARY KEY,
           ledgerDelTs INTEGER,
           receiptDelTs INTEGER,
           paymentDelTs INTEGER
-          ); INSERT INTO DelRecord(PartyDelTs, ledgerDelTs, receiptDelTs, paymentDelTs) VALUES(0, 0, 0, 0) """;
+          ); """;
+
+  static const delRecordTableInsert = """
+          INSERT INTO DelRecord(PartyDelTs, ledgerDelTs, receiptDelTs, paymentDelTs) VALUES(0, 0, 0, 0);
+          """;
 
   static const partyTable = """
           CREATE TABLE IF NOT EXISTS Party (
@@ -135,13 +140,12 @@ class DbProvider {
         credit: isKyNotNull(v['Credit']) ? v['Credit'] : 0,
         ts: v['ts'],
         // bal: 0,
-
       );
       isUpdated = await isLedgerExists(v['_id']);
 
       if (isUpdated)
-        sqliteDb.update(partyTableName, ledgerModel.toMap(),
-            where: 'ID=?', whereArgs: [v['_id']]);
+        sqliteDb.update(legderTableName, ledgerModel.toMap(),
+            where: 'id=?', whereArgs: [v['_id']]);
       else
         sqliteDb.insert(legderTableName, ledgerModel.toMap());
     });
@@ -158,11 +162,10 @@ class DbProvider {
         .find(where.gt('ts', maxTs).sortBy('ts'))
         .forEach((v) async {
       sqliteDb.delete(legderTableName, where: 'ID=?', whereArgs: [v['_id']]);
-      maxTs = v['_id'];
+      maxTs = v['ts'];
     });
     sqliteDb.rawUpdate("UPDATE DelRecord SET LedgerDelTs=$maxTs");
   }
-
 
   Future<List<PartyModel>> fetchPartyLegSum() async {
     final sqliteDb = await init();
@@ -214,10 +217,9 @@ class DbProvider {
   Future<int> fetchLedgerDelLastTs() async {
     final sqliteDb = await init();
     final result = await sqliteDb.rawQuery(
-        "SELECT IFNULL(MAX(LedgerTs),0) as timestamp FROM DelRecords");
+        "SELECT IFNULL(MAX(LedgerDelTs),0) as timestamp FROM DelRecord");
     return result[0]["timestamp"];
   }
-
 
   Future<List<PartyModel>> fetchPartyLegSumByPartName(String partyName) async {
     //returns the Categories as a list (array)
@@ -237,7 +239,6 @@ class DbProvider {
       );
     });
   }
-
 
   Future<List<LedgerModel>> fetchLedgerByPartyId(int partyId) async {
     //returns the Categories as a list (array)
@@ -288,7 +289,6 @@ class DbProvider {
         debit: maps[i]['debit'],
         credit: maps[i]['credit'],
         // bal: maps[i]['Bal'],
-
       );
     });
   }
