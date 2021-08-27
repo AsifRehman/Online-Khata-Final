@@ -77,10 +77,10 @@ class DbProvider {
           );""";
 
   static const partLegTable = """
-          CREATE VIEW IF NOT EXISTS PartyLeg AS SELECT 0 as vocNo, date, 'OP' tType, 'OPENING...' as description, partyID, partyName, mobile1, mobile2, debit, credit, IFNULL(debit,0)-IFNULL(credit,0) as Bal FROM Party UNION ALL SELECT vocNo, date, tType, description, partyID, Null, null, null, debit, credit, IFNULL(debit,0)-IFNULL(credit,0) as Bal FROM Ledger;""";
+          CREATE VIEW IF NOT EXISTS PartyLeg AS SELECT 0 as vocNo, date, 'OP' tType, 'OPENING...' as description, partyID, partyName, mobile1, mobile2, debit, credit, IFNULL(debit,0)-IFNULL(credit,0) as Bal, 0 as ts FROM Party UNION ALL SELECT vocNo, date, tType, description, partyID, Null, null, null, debit, credit, IFNULL(debit,0)-IFNULL(credit,0) as Bal, ts FROM Ledger;""";
 
   static const partLegSumTable = """
-          CREATE VIEW IF NOT EXISTS PartyLegSum AS SELECT partyID, MAX(partyName) as partyName, max(mobile1) as mobile1, max(mobile2) as mobile2, sum(debit) as debit, sum(credit) as credit, SUM(Bal) as Bal FROM PartyLeg GROUP BY partyID;""";
+          CREATE VIEW IF NOT EXISTS PartyLegSum AS SELECT partyID, MAX(partyName) as partyName, max(mobile1) as mobile1, max(mobile2) as mobile2, sum(debit) as debit, sum(credit) as credit, SUM(Bal) as Bal, max(ts) as ts FROM PartyLeg GROUP BY partyID;""";
 
   Future addPartyItem(var collection) async {
     final sqliteDb = await init(); //open database
@@ -169,7 +169,7 @@ class DbProvider {
 
   Future<List<PartyModel>> fetchPartyLegSum() async {
     final sqliteDb = await init();
-    final maps = await sqliteDb.query('PartyLegSum');
+    final maps = await sqliteDb.query('PartyLegSum', orderBy: 'ts DESC');
 
     return List.generate(maps.length, (i) {
       //create a list of Categories
@@ -226,7 +226,9 @@ class DbProvider {
 
     final sqliteDb = await init();
     final maps = await sqliteDb.query(partyLegSumCreateViewTableName,
-        where: "LOWER(partyName) LIKE ?", whereArgs: ['%$partyName%']);
+        where: "LOWER(partyName) LIKE ?",
+        whereArgs: ['%$partyName%'],
+        orderBy: "ts DESC");
 
     return List.generate(maps.length, (i) {
       //create a list of Categories
