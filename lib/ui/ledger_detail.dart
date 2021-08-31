@@ -53,7 +53,7 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
   List<LedgerModel> ledgerModelList = [];
 
   bool _checkConfiguration() => true;
-  int startDateMilli, endDateMilli,startDateForCalendarMilli;
+  int startDateMilli, endDateMilli, startDateForCalendarMilli;
   String startDateStr = "", endDateStr = "";
 
   String smsMessage = "";
@@ -839,8 +839,10 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
 
   selectStartDate(BuildContext context) async {
     try {
-      DateTime date = new DateTime.fromMillisecondsSinceEpoch(startDateForCalendarMilli);
-      DateTime initialDate = new DateTime.fromMillisecondsSinceEpoch(startDateMilli);
+      DateTime date =
+          new DateTime.fromMillisecondsSinceEpoch(startDateForCalendarMilli);
+      DateTime initialDate =
+          new DateTime.fromMillisecondsSinceEpoch(startDateMilli);
 
       final DateTime picked = await showDatePicker(
         context: context,
@@ -884,7 +886,8 @@ class _LedgerDetailScreenState extends State<LedgerDetailScreen> {
 
   selectEndDate(BuildContext context) async {
     try {
-      DateTime date = new DateTime.fromMillisecondsSinceEpoch(startDateForCalendarMilli);
+      DateTime date =
+          new DateTime.fromMillisecondsSinceEpoch(startDateForCalendarMilli);
 
       final DateTime picked = await showDatePicker(
         context: context,
@@ -1131,8 +1134,11 @@ class LedgerItem extends StatelessWidget {
                                       margin: EdgeInsets.fromLTRB(
                                           0.0, 2.0, 0.0, 0.0),
                                       child: Text(
-                                       "RS " + oCcy.format(totalBalance.abs()).toString(),
-                                       //  "RS " + _item.bal.abs().toString(),
+                                        "RS " +
+                                            oCcy
+                                                .format(totalBalance.abs())
+                                                .toString(),
+                                        //  "RS " + _item.bal.abs().toString(),
                                         maxLines: 2,
                                         softWrap: true,
                                         overflow: TextOverflow.ellipsis,

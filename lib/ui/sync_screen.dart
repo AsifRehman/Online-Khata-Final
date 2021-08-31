@@ -79,6 +79,8 @@ class _SyncScreenState extends State<SyncScreen> {
                         )
                       : Container(),
                   HomeButton(viewHomeBtn: viewHomeBtn),
+                  SizedBox(height: 15),
+                  HomeButtonWoZero(viewHomeBtn: viewHomeBtn),
                   GestureDetector(
                     onTap: () {
                       getUserName().then((value) {
@@ -295,7 +297,6 @@ class _SyncScreenState extends State<SyncScreen> {
           CustomLoaderDialog(title: "Loading..."),
     );
   }
-
 }
 
 class HomeButton extends StatelessWidget {
@@ -316,6 +317,10 @@ class HomeButton extends StatelessWidget {
               if (value != null && value != "") {
                 getDatabaseName().then((value) {
                   if (value != null && value != "") {
+                    HomeScreen.orderBy = 'ts';
+                    HomeScreen.orderByDirection = "DESC";
+                    HomeScreen.includeZero = true;
+
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) => HomeScreen()));
                   }
@@ -362,7 +367,86 @@ class HomeButton extends StatelessWidget {
               Container(
                   margin: EdgeInsets.fromLTRB(5.0, 0, 0.0, 0.0),
                   child: Text(
-                    'Go To Home',
+                    'All Parties List',
+                    style: TextStyle(color: Colors.white),
+                  )),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class HomeButtonWoZero extends StatelessWidget {
+  const HomeButtonWoZero({
+    Key key,
+    @required this.viewHomeBtn,
+  }) : super(key: key);
+
+  final bool viewHomeBtn;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        getUserName().then((value) {
+          if (value != null && value != "") {
+            getPassword().then((value) {
+              if (value != null && value != "") {
+                getDatabaseName().then((value) {
+                  if (value != null && value != "") {
+                    HomeScreen.orderBy = 'ts';
+                    HomeScreen.orderByDirection = "DESC";
+                    HomeScreen.includeZero = false;
+
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => HomeScreen()));
+                  }
+                });
+              }
+            });
+          } else {
+            showDialog(
+                context: context,
+                barrierDismissible: false,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: new Text("Alert"),
+                    content: new Text(
+                        "First,Go to Settings and fill information in the field."),
+                    actions: <Widget>[
+                      new TextButton(
+                        child: new Text('OK'),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ],
+                  );
+                });
+          }
+        });
+      },
+      child: Visibility(
+        visible: viewHomeBtn,
+        child: Container(
+          height: 40,
+          margin: EdgeInsets.fromLTRB(20.0, 0, 20.0, 0.0),
+          padding: const EdgeInsets.all(5.0),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.white),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset("assets/ic_home.png",
+                  width: 18, height: 18, color: Colors.white),
+              Container(
+                  margin: EdgeInsets.fromLTRB(5.0, 0, 0.0, 0.0),
+                  child: Text(
+                    'Parties List With Balances',
                     style: TextStyle(color: Colors.white),
                   )),
             ],

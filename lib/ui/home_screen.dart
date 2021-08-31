@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:onlinekhata/sqflite_database/DbProvider.dart';
 import 'package:onlinekhata/sqflite_database/model/PartyModel.dart';
@@ -8,6 +9,9 @@ import 'package:intl/intl.dart';
 
 class HomeScreen extends StatefulWidget {
   static String id = 'home_screen';
+  static String orderBy = 'ts';
+  static String orderByDirection = 'DESC';
+  static bool includeZero = true;
 
   @override
   _HomeScreenState createState() => _HomeScreenState();
@@ -15,6 +19,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool loading = true;
+  String sortByChoose = "ts";
+  List sortByOptions = ["ts", "partyName", "Bal"];
 
   final oCcy = new NumberFormat("#,##0.00", "en_US");
 
@@ -30,9 +36,24 @@ class _HomeScreenState extends State<HomeScreen> {
         showLoaderDialog(context);
       });
     }
-    getDateFromLocalDB();
+    getDataFromLocalDB(true);
 
     super.initState();
+  }
+
+  getDataFromLocalDB(bool isPop) async {
+    dbProvider
+        .fetchPartyLegSum(HomeScreen.orderBy, HomeScreen.orderByDirection,
+            HomeScreen.includeZero)
+        .then((value) {
+      partyModelList = value;
+
+      if (isPop) Navigator.pop(context);
+
+      setState(() {
+        loading = false;
+      });
+    });
   }
 
   @override
@@ -45,35 +66,34 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             buildTopBar(context),
-            buildSearchBar(context,width),
+            buildSearchBar(context, width),
             buildListview(),
-
           ],
         ),
       ),
     );
   }
 
-  Container buildTopBar(BuildContext context){
-   return Container(
+  Container buildTopBar(BuildContext context) {
+    return Container(
       color: Colors.blue,
       width: MediaQuery.of(context).size.width - 1,
       child: Row(
         children: [
           Platform.isIOS
               ?
-          // iOS-specific code
-          Container(
-            child: new IconButton(
-              icon: Image.asset(
-                'assets/ic_back.png',
-                width: 40,
-                height: 40,
-                color: Colors.white,
-              ),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          )
+              // iOS-specific code
+              Container(
+                  child: new IconButton(
+                    icon: Image.asset(
+                      'assets/ic_back.png',
+                      width: 40,
+                      height: 40,
+                      color: Colors.white,
+                    ),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
+                )
               : Container(),
           Container(
             child: Container(
@@ -102,12 +122,13 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-  Container buildSearchBar(BuildContext context,double width) {
-    return  Container(
+
+  Container buildSearchBar(BuildContext context, double width) {
+    return Container(
       child: Row(
         children: <Widget>[
           Container(
-            width: width * 0.83,
+            width: width * 0.63,
             height: 37,
             margin: EdgeInsets.fromLTRB(12.0, 20.0, 5, 25.0),
             child: TextField(
@@ -126,9 +147,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     loading = true;
                   });
                   dbProvider
-                      .fetchPartyLegSumByPartName(searchController.text
-                      .toLowerCase()
-                      .toString())
+                      .fetchPartyLegSumByPartName(
+                          searchController.text.toLowerCase().toString())
                       .then((value) {
                     partyModelList = value;
 
@@ -151,7 +171,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   border: new UnderlineInputBorder(
                       borderSide: new BorderSide(color: Colors.blue)),
                   contentPadding:
-                  const EdgeInsets.fromLTRB(12.0, 2.0, 12.0, 10.0),
+                      const EdgeInsets.fromLTRB(12.0, 2.0, 12.0, 10.0),
                   filled: true,
                   hintText: "Search",
                   hintStyle: new TextStyle(
@@ -169,7 +189,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 });
                 dbProvider
                     .fetchPartyLegSumByPartName(
-                    searchController.text.toLowerCase().toString())
+                        searchController.text.toLowerCase().toString())
                     .then((value) {
                   partyModelList = value;
 
@@ -181,7 +201,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 setState(() {
                   loading = true;
                 });
-                dbProvider.fetchPartyLegSum().then((value) {
+                dbProvider
+                    .fetchPartyLegSum(HomeScreen.orderBy,
+                        HomeScreen.orderByDirection, HomeScreen.includeZero)
+                    .then((value) {
                   partyModelList = value;
 
                   setState(() {
@@ -196,82 +219,79 @@ class _HomeScreenState extends State<HomeScreen> {
               size: 26,
             ),
           ),
+          DropdownButton(
+            icon: Icon(Icons.sort_rounded, color: Colors.blue),
+            value: sortByChoose,
+            onChanged: (newValue) {
+              this.sortByChoose = newValue;
+              setState(() {
+                this.sortByChoose = newValue;
+                HomeScreen.orderBy = this.sortByChoose;
+                getDataFromLocalDB(false);
+              });
+            },
+            items: sortByOptions.map((e) {
+              return DropdownMenuItem(
+                value: e,
+                child: Text(e),
+              );
+            }).toList(),
+          )
         ],
       ),
     );
-
   }
 
-
-
-  Container  buildListview(){
-
+  Container buildListview() {
     return Container(
       child: Expanded(
           child: loading == true
               ? Container()
               : partyModelList == null
-              ? Center(
-            child: Text('No record found.'),
-          )
-              : partyModelList.length == 0
-              ? Center(
-            child: Text('No record found.'),
-          )
-              : new ListView.builder(
-            //      controller: scrollController,
-            itemCount: partyModelList.length,
-            scrollDirection: Axis.vertical,
-            shrinkWrap: true,
-            itemBuilder:
-                (BuildContext context, int index) {
-              return new InkWell(
-                onTap: () {
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                              LedgerDetailScreen(
-                                iD: partyModelList[index]
-                                    .partyID,
-                                partName:
-                                partyModelList[index]
-                                    .partyName,
-                                partyMobileNo1:
-                                partyModelList[index]
-                                    .mobile1,
-                                partyMobileNo2:
-                                partyModelList[index]
-                                    .mobile2,
-                              )));
-                },
-                child: new PartiesItem(
-                    partyModelList[index], index),
-              );
-            },
-          )),
+                  ? Center(
+                      child: Text('No record found.'),
+                    )
+                  : partyModelList.length == 0
+                      ? Center(
+                          child: Text('No record found.'),
+                        )
+                      : new ListView.builder(
+                          //      controller: scrollController,
+                          itemCount: partyModelList.length,
+                          scrollDirection: Axis.vertical,
+                          shrinkWrap: true,
+                          itemBuilder: (BuildContext context, int index) {
+                            return new InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            LedgerDetailScreen(
+                                              iD: partyModelList[index].partyID,
+                                              partName: partyModelList[index]
+                                                  .partyName,
+                                              partyMobileNo1:
+                                                  partyModelList[index].mobile1,
+                                              partyMobileNo2:
+                                                  partyModelList[index].mobile2,
+                                            )));
+                              },
+                              child:
+                                  new PartiesItem(partyModelList[index], index),
+                            );
+                          },
+                        )),
     );
-
   }
-    showLoaderDialog(BuildContext context) {
+
+  showLoaderDialog(BuildContext context) {
     showDialog(
       barrierDismissible: false,
       context: context,
       builder: (BuildContext context) =>
           CustomLoaderDialog(title: "Loading..."),
     );
-  }
-
-  getDateFromLocalDB() async {
-    dbProvider.fetchPartyLegSum().then((value) {
-      partyModelList = value;
-
-      Navigator.pop(context);
-
-      setState(() {
-        loading = false;
-      });
-    });
   }
 }
 
@@ -289,7 +309,6 @@ class PartiesItem extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: <Widget>[
-
           Container(
               margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
               color: index % 2 == 0 ? Color(0xffF5F5F5) : Colors.white,
@@ -308,7 +327,6 @@ class PartiesItem extends StatelessWidget {
                           ],
                         )),
                   ),
-                  
                   buildTotalBalance()
                 ],
               )),
@@ -316,8 +334,9 @@ class PartiesItem extends StatelessWidget {
       ),
     );
   }
-  Widget buildTotalBalance(){
-  return  Container(
+
+  Widget buildTotalBalance() {
+    return Container(
       margin: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -359,33 +378,31 @@ class PartiesItem extends StatelessWidget {
     );
   }
 
-  Widget  buildPartyName() {
+  Widget buildPartyName() {
     return isKeyNotNull(_item.partyName)
-        ?  Container(
-      margin:
-      EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
-      child: Text(
-        _item.partyName,
-        maxLines: 1,
-        softWrap: true,
-        overflow: TextOverflow.ellipsis,
-        style: TextStyle(
-          color: Colors.black,
-          fontSize: 16,
-          fontWeight: FontWeight.w400,
-        ),
-      ),
-    )
+        ? Container(
+            margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
+            child: Text(
+              _item.partyName,
+              maxLines: 1,
+              softWrap: true,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 16,
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          )
         : Container();
   }
 
-  Widget buildTotalDebit(){
-    return  Row(
+  Widget buildTotalDebit() {
+    return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Container(
-          margin:
-          EdgeInsets.fromLTRB(0.0, 3.0, 3.0, 0.0),
+          margin: EdgeInsets.fromLTRB(0.0, 3.0, 3.0, 0.0),
           child: Text(
             'Total Debit:',
             textAlign: TextAlign.right,
@@ -401,51 +418,45 @@ class PartiesItem extends StatelessWidget {
         ),
         isKeyNotNullAndZero(_item.debit)
             ? Container(
-          margin: EdgeInsets.fromLTRB(
-              7.0, 3.0, 3.0, 0.0),
-          child: Text(
-            'RS ' +
-                oCcy
-                    .format(_item.debit)
-                    .toString(),
-            textAlign: TextAlign.right,
-            maxLines: 1,
-            softWrap: true,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: Colors.red,
-              fontSize: 12.5,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        )
+                margin: EdgeInsets.fromLTRB(7.0, 3.0, 3.0, 0.0),
+                child: Text(
+                  'RS ' + oCcy.format(_item.debit).toString(),
+                  textAlign: TextAlign.right,
+                  maxLines: 1,
+                  softWrap: true,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              )
             : Container(
-          margin: EdgeInsets.fromLTRB(
-              7.0, 3.0, 3.0, 0.0),
-          child: Text(
-            'RS 0',
-            textAlign: TextAlign.right,
-            maxLines: 1,
-            softWrap: true,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: Colors.red,
-              fontSize: 12.5,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
+                margin: EdgeInsets.fromLTRB(7.0, 3.0, 3.0, 0.0),
+                child: Text(
+                  'RS 0',
+                  textAlign: TextAlign.right,
+                  maxLines: 1,
+                  softWrap: true,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Colors.red,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
       ],
     );
   }
 
-  Widget buildTotalCredit(){
-    return   Row(
+  Widget buildTotalCredit() {
+    return Row(
       mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Container(
-          margin:
-          EdgeInsets.fromLTRB(0.0, 3.0, 3.0, 0.0),
+          margin: EdgeInsets.fromLTRB(0.0, 3.0, 3.0, 0.0),
           child: Text(
             'Total Credit:',
             textAlign: TextAlign.right,
@@ -461,44 +472,40 @@ class PartiesItem extends StatelessWidget {
         ),
         isKeyNotNullAndZero(_item.credit)
             ? Container(
-          margin: EdgeInsets.fromLTRB(
-              3.0, 3.0, 3.0, 0.0),
-          child: Text(
-            'RS ' +
-                oCcy
-                    .format(_item.credit)
-                    .toString(),
-            textAlign: TextAlign.right,
-            maxLines: 1,
-            softWrap: true,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: Colors.green,
-              fontSize: 12.5,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        )
+                margin: EdgeInsets.fromLTRB(3.0, 3.0, 3.0, 0.0),
+                child: Text(
+                  'RS ' + oCcy.format(_item.credit).toString(),
+                  textAlign: TextAlign.right,
+                  maxLines: 1,
+                  softWrap: true,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Colors.green,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              )
             : Container(
-          margin: EdgeInsets.fromLTRB(
-              3.0, 3.0, 3.0, 0.0),
-          child: Text(
-            'RS 0',
-            textAlign: TextAlign.right,
-            maxLines: 1,
-            softWrap: true,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: Colors.green,
-              fontSize: 12.5,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ),
+                margin: EdgeInsets.fromLTRB(3.0, 3.0, 3.0, 0.0),
+                child: Text(
+                  'RS 0',
+                  textAlign: TextAlign.right,
+                  maxLines: 1,
+                  softWrap: true,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: Colors.green,
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
       ],
     );
   }
-    bool isKeyNotNull(Object param1) {
+
+  bool isKeyNotNull(Object param1) {
     if (param1 != null && param1 != "")
       return true;
     else

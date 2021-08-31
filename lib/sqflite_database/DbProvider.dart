@@ -167,9 +167,14 @@ class DbProvider {
     sqliteDb.rawUpdate("UPDATE DelRecord SET LedgerDelTs=$maxTs");
   }
 
-  Future<List<PartyModel>> fetchPartyLegSum() async {
+  Future<List<PartyModel>> fetchPartyLegSum(
+      String orderby, String orderByDirection, bool includeZero) async {
     final sqliteDb = await init();
-    final maps = await sqliteDb.query('PartyLegSum', orderBy: 'ts DESC');
+    String cri = 'Bal>=0 OR Bal<0';
+    if (includeZero == false) cri = 'Bal<>0';
+
+    final maps = await sqliteDb.query('PartyLegSum',
+        where: '$cri', orderBy: '$orderby $orderByDirection');
 
     return List.generate(maps.length, (i) {
       //create a list of Categories
