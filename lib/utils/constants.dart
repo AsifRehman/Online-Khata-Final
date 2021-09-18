@@ -1,14 +1,15 @@
 import 'package:intl/intl.dart';
-import 'package:mongo_dart/mongo_dart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 SharedPreferences sharedPreferences;
 
 final String databaseName = "online_khata.db";
+final String partyTypeTableName = "PartyType";
 final String partyTableName = "Party";
 final String legderTableName = "Ledger";
 final String partyLegCreateViewTableName = "PartyLeg";
 final String partyLegSumCreateViewTableName = "PartyLegSum";
+final String partyTypeLegSumCreateViewTableName = "PartyTypeLegSum";
 
 setLocalDb(bool localDb) async {
   sharedPreferences = await SharedPreferences.getInstance();
@@ -34,7 +35,6 @@ Future<String> getLastSyncDateTime() async {
   return sharedPreferences.getString("lastSyncDateTime");
 }
 
-
 setUserName(String userName) async {
   sharedPreferences = await SharedPreferences.getInstance();
   sharedPreferences.setString("userName", userName);
@@ -47,8 +47,6 @@ Future<String> getUserName() async {
   return sharedPreferences.getString("userName");
 }
 
-
-
 setPassword(String password) async {
   sharedPreferences = await SharedPreferences.getInstance();
   sharedPreferences.setString("password", password);
@@ -60,7 +58,6 @@ Future<String> getPassword() async {
   sharedPreferences = await SharedPreferences.getInstance();
   return sharedPreferences.getString("password");
 }
-
 
 setDatabaseName(String databaseName) async {
   sharedPreferences = await SharedPreferences.getInstance();
@@ -84,29 +81,27 @@ String getDateTimeFormat(String date) {
 }
 
 int getDateTimeLedgerFormat(DateTime date) {
-
-  int milliseconds =  date.millisecondsSinceEpoch;
+  int milliseconds = date.millisecondsSinceEpoch;
 
   return milliseconds;
 }
 
-String getDateFromMillisecound(int milliseconds){
+String getDateFromMillisecound(int milliseconds) {
   DateTime datetime = DateTime.fromMillisecondsSinceEpoch(milliseconds);
   final DateFormat formatter = DateFormat('dd-MM-yyyy');
   String formatted = formatter.format(datetime);
 
   return formatted;
 }
-String getDateFromMillisecoundDate(int milliseconds){
 
-
+String getDateFromMillisecoundDate(int milliseconds) {
   DateTime datetime = DateTime.fromMillisecondsSinceEpoch(milliseconds);
   final DateFormat formatter = DateFormat('dd MMM yyyy');
   String formatted = formatter.format(datetime);
   return formatted;
 }
 
-String getCurrentDate(){
+String getCurrentDate() {
   DateTime now = DateTime.now();
   String formattedDate = DateFormat('dd-MM-yyyy').format(now);
 

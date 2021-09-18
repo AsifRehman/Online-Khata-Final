@@ -9,6 +9,7 @@ import 'package:path/path.dart';
 import 'package:mongo_dart/mongo_dart.dart';
 import 'model/LedgerModel.dart';
 import 'model/PartyModel.dart';
+import 'model/PartyTypeModel.dart';
 
 class DbProvider {
   Future<Database> init() async {
@@ -23,6 +24,7 @@ class DbProvider {
         // await sqliteDb.execute(dateTable);
         await sqliteDb.execute(delRecordTable);
         await sqliteDb.execute(delRecordTableInsert);
+        await sqliteDb.execute(partyTypeTable);
         await sqliteDb.execute(partyTable);
         await sqliteDb.execute(legderTable);
         await sqliteDb.execute(partLegTable);
@@ -39,6 +41,7 @@ class DbProvider {
 
   static const delRecordTable = """
           CREATE TABLE IF NOT EXISTS DelRecord (
+          partyTypeDelTs INTEGER,
           partyDelTs INTEGER PRIMARY KEY,
           ledgerDelTs INTEGER,
           receiptDelTs INTEGER,
@@ -46,8 +49,16 @@ class DbProvider {
           ); """;
 
   static const delRecordTableInsert = """
-          INSERT INTO DelRecord(PartyDelTs, ledgerDelTs, receiptDelTs, paymentDelTs) VALUES(0, 0, 0, 0);
+          INSERT INTO DelRecord(PartyTypeDelTs, PartyDelTs, ledgerDelTs, receiptDelTs, paymentDelTs) VALUES(0, 0, 0, 0, 0);
           """;
+
+  static const partyTypeTable = """
+          CREATE TABLE IF NOT EXISTS PartyType (
+          partyTypeID INTEGER PRIMARY KEY,
+          partyTypeName TEXT,
+          partyGroup TEXT,
+          ts INTEGER
+          );""";
 
   static const partyTable = """
           CREATE TABLE IF NOT EXISTS Party (
@@ -77,10 +88,54 @@ class DbProvider {
           );""";
 
   static const partLegTable = """
-          CREATE VIEW IF NOT EXISTS PartyLeg AS SELECT 0 as vocNo, date, 'OP' tType, 'OPENING...' as description, partyID, partyName, mobile1, mobile2, debit, credit, IFNULL(debit,0)-IFNULL(credit,0) as Bal, 0 as ts FROM Party UNION ALL SELECT vocNo, date, tType, description, partyID, Null, null, null, debit, credit, IFNULL(debit,0)-IFNULL(credit,0) as Bal, ts FROM Ledger;""";
+          CREATE VIEW IF NOT EXISTS PartyLeg AS SELECT 0 as vocNo, date, 'OP' tType, 
+          'OPENING...' as description, partyID, partyName, partyTypeID, mobile1, mobile2, 
+          debit, credit, IFNULL(debit,0)-IFNULL(credit,0) as Bal, 0 as ts 
+          FROM Party 
+          UNION ALL 
+          SELECT vocNo, date, tType, 
+          description, partyID, Null, null, null, null, 
+          debit, credit, IFNULL(debit,0)-IFNULL(credit,0) as Bal, ts 
+          FROM Ledger;""";
 
   static const partLegSumTable = """
-          CREATE VIEW IF NOT EXISTS PartyLegSum AS SELECT partyID, MAX(partyName) as partyName, max(mobile1) as mobile1, max(mobile2) as mobile2, sum(debit) as debit, sum(credit) as credit, SUM(Bal) as Bal, max(ts) as ts FROM PartyLeg GROUP BY partyID;""";
+          CREATE VIEW IF NOT EXISTS PartyLegSum AS SELECT partyID, MAX(partyName) as partyName, 
+          MAX(partyTypeID) as partyTypeID, max(mobile1) as mobile1, max(mobile2) as mobile2, 
+          sum(debit) as debit, sum(credit) as credit, SUM(Bal) as Bal, max(ts) as ts 
+          FROM PartyLeg GROUP BY partyID;""";
+
+  Future addPartyTypeItem(var collection) async {
+    final sqliteDb = await init(); //open database
+    bool isUpdated = false;
+
+    int maxTs = await dbProvider.fetchPartyTypeLastTs();
+    await collection
+        .find(where.gt('ts', maxTs).sortBy('ts'))
+        .forEach((v) async {
+      final partyModel = PartyTypeModel(
+        partyTypeID: v['_id'],
+        partyTypeName: v['PartyTypeName'].toString(),
+        partyGroup: v['partyGroup'],
+        ts: v['ts'],
+      );
+
+      isUpdated = await isPartyTypeExists(v['_id']);
+
+      if (isUpdated)
+        sqliteDb.update(partyTypeTableName, partyModel.toMap(),
+            where: 'PartyTypeID=?', whereArgs: [v['_id']]);
+      else
+        sqliteDb.insert(
+          partyTypeTableName,
+          partyModel.toMap(),
+        );
+
+      // DELETE LOGIC
+      //1. GET IDS TO DELETE FROM PARTY Type
+      //2. DELETE FROM PARTY Type TABLE
+      //3. UPDATE DEL PARTY Type TS.
+    });
+  }
 
   Future addPartyItem(var collection) async {
     final sqliteDb = await init(); //open database
@@ -168,10 +223,10 @@ class DbProvider {
   }
 
   Future<List<PartyModel>> fetchPartyLegSum(
-      String orderby, String orderByDirection, bool includeZero) async {
+      String orderby, String orderByDirection, String cri) async {
     final sqliteDb = await init();
-    String cri = 'Bal>=0 OR Bal<0';
-    if (includeZero == false) cri = 'Bal<>0';
+    //String cri = 'Bal>=0 OR Bal<0';
+    if (cri == '') cri = '1=1';
 
     final maps = await sqliteDb.query('PartyLegSum',
         where: '$cri', orderBy: '$orderby $orderByDirection');
@@ -190,11 +245,40 @@ class DbProvider {
     });
   }
 
+  Future<List<PartyTypeModel>> fetchPartyType() async {
+    final sqliteDb = await init();
+
+    final maps = await sqliteDb.query('PartyType', orderBy: 'partyTypeName');
+
+    return List.generate(maps.length, (i) {
+      //create a list of Categories
+      return PartyTypeModel(
+        partyTypeID: maps[i]["partyTypeID"],
+        partyTypeName: maps[i]["partyTypeName"],
+        partyGroup: maps[i]["partyGroup"],
+      );
+    });
+  }
+
+  Future<int> fetchPartyTypeLastTs() async {
+    final sqliteDb = await init();
+    final result = await sqliteDb
+        .rawQuery("SELECT IFNULL(MAX(ts),0) as timestamp FROM PartyType");
+    return result[0]["timestamp"];
+  }
+
   Future<int> fetchPartyLastTs() async {
     final sqliteDb = await init();
     final result = await sqliteDb
         .rawQuery("SELECT IFNULL(MAX(ts),0) as timestamp FROM Party");
     return result[0]["timestamp"];
+  }
+
+  Future<bool> isPartyTypeExists(int id) async {
+    final sqliteDb = await init();
+    final result = await sqliteDb
+        .rawQuery("SELECT PartyTypeID as id FROM PartyType WHERE id=$id");
+    return result.isEmpty ? false : result[0]['id'] > 0;
   }
 
   Future<bool> isPartyExists(int id) async {
@@ -224,6 +308,26 @@ class DbProvider {
     final result = await sqliteDb.rawQuery(
         "SELECT IFNULL(MAX(LedgerDelTs),0) as timestamp FROM DelRecord");
     return result[0]["timestamp"];
+  }
+
+  Future<List<PartyTypeModel>> fetchPartyTypesByPartTypeName(
+      String partyTypeName) async {
+    //returns the Categories as a list (array)
+
+    final sqliteDb = await init();
+    final maps = await sqliteDb.query(partyLegSumCreateViewTableName,
+        where: "LOWER(partyName) LIKE ?",
+        whereArgs: ['%$partyTypeName%'],
+        orderBy: "ts DESC");
+
+    return List.generate(maps.length, (i) {
+      //create a list of Categories
+      return PartyTypeModel(
+        partyTypeID: maps[i]['partyTypeID'],
+        partyTypeName: maps[i]['partyTypeName'],
+        partyGroup: maps[i]['partyGroup'],
+      );
+    });
   }
 
   Future<List<PartyModel>> fetchPartyLegSumByPartName(String partyName) async {

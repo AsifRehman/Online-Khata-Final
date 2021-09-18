@@ -1,23 +1,22 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:onlinekhata/sqflite_database/DbProvider.dart';
-import 'package:onlinekhata/sqflite_database/model/PartyModel.dart';
-import 'package:onlinekhata/ui/ledger_detail.dart';
+import 'package:onlinekhata/sqflite_database/model/PartyTypeModel.dart';
+import 'package:onlinekhata/ui/home_screen.dart';
 import 'package:onlinekhata/utils/custom_loader_dialog.dart';
 import 'dart:io' show Platform;
 import 'package:intl/intl.dart';
 
-class HomeScreen extends StatefulWidget {
-  static String id = 'home_screen';
+class PartyTypeScreen extends StatefulWidget {
+  static String id = 'partytype_screen';
   static String orderBy = 'ts';
   static String orderByDirection = 'DESC';
-  static String cri = '';
 
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  _PartyTypeScreenState createState() => _PartyTypeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _PartyTypeScreenState extends State<PartyTypeScreen> {
   bool loading = true;
   String sortByChoose = "ts";
   List sortByOptions = ["ts", "partyName", "Bal"];
@@ -26,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   TextEditingController searchController = TextEditingController();
   DbProvider dbProvider = DbProvider();
-  List<PartyModel> partyModelList = [];
+  List<PartyTypeModel> partyModelList = [];
   bool _checkConfiguration() => true;
 
   @override
@@ -42,10 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   getDataFromLocalDB(bool isPop) async {
-    dbProvider
-        .fetchPartyLegSum(
-            HomeScreen.orderBy, HomeScreen.orderByDirection, HomeScreen.cri)
-        .then((value) {
+    dbProvider.fetchPartyType().then((value) {
       partyModelList = value;
 
       if (isPop) Navigator.pop(context);
@@ -147,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     loading = true;
                   });
                   dbProvider
-                      .fetchPartyLegSumByPartName(
+                      .fetchPartyTypesByPartTypeName(
                           searchController.text.toLowerCase().toString())
                       .then((value) {
                     partyModelList = value;
@@ -188,7 +184,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   loading = true;
                 });
                 dbProvider
-                    .fetchPartyLegSumByPartName(
+                    .fetchPartyTypesByPartTypeName(
                         searchController.text.toLowerCase().toString())
                     .then((value) {
                   partyModelList = value;
@@ -201,10 +197,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 setState(() {
                   loading = true;
                 });
-                dbProvider
-                    .fetchPartyLegSum(HomeScreen.orderBy,
-                        HomeScreen.orderByDirection, HomeScreen.cri)
-                    .then((value) {
+                dbProvider.fetchPartyType().then((value) {
                   partyModelList = value;
 
                   setState(() {
@@ -263,22 +256,17 @@ class _HomeScreenState extends State<HomeScreen> {
                           itemBuilder: (BuildContext context, int index) {
                             return new InkWell(
                               onTap: () {
+                                HomeScreen.cri = "PartyTypeID=" +
+                                    partyModelList[index]
+                                        .partyTypeID
+                                        .toString();
                                 Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                        builder: (context) =>
-                                            LedgerDetailScreen(
-                                              iD: partyModelList[index].partyID,
-                                              partName: partyModelList[index]
-                                                  .partyName,
-                                              partyMobileNo1:
-                                                  partyModelList[index].mobile1,
-                                              partyMobileNo2:
-                                                  partyModelList[index].mobile2,
-                                            )));
+                                        builder: (context) => HomeScreen()));
                               },
-                              child:
-                                  new PartiesItem(partyModelList[index], index),
+                              child: new PartyTypesItem(
+                                  partyModelList[index], index),
                             );
                           },
                         )),
@@ -295,12 +283,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-class PartiesItem extends StatelessWidget {
-  final PartyModel _item;
+class PartyTypesItem extends StatelessWidget {
+  final PartyTypeModel _item;
   final int index;
   final oCcy = new NumberFormat("#,##0", "en_US");
 
-  PartiesItem(this._item, this.index);
+  PartyTypesItem(this._item, this.index);
 
   @override
   Widget build(BuildContext context) {
@@ -322,12 +310,9 @@ class PartiesItem extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: <Widget>[
                             buildPartyName(),
-                            buildTotalDebit(),
-                            buildTotalCredit()
                           ],
                         )),
                   ),
-                  buildTotalBalance()
                 ],
               )),
         ],
@@ -335,55 +320,12 @@ class PartiesItem extends StatelessWidget {
     );
   }
 
-  Widget buildTotalBalance() {
-    return Container(
-      margin: EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Container(
-            margin: EdgeInsets.fromLTRB(3.0, 0.0, 0.0, 0.0),
-            child: Text(
-              'RS ' + oCcy.format(_item.total.abs()).toString(),
-              textAlign: TextAlign.right,
-              maxLines: 1,
-              softWrap: true,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: (int.parse(_item.total.toString())) > 0
-                    ? Colors.red
-                    : Colors.green,
-                fontSize: 12.5,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
-          Container(
-            margin: EdgeInsets.fromLTRB(0.0, 2.0, 3.0, 0.0),
-            child: Text(
-              'Balance',
-              textAlign: TextAlign.right,
-              maxLines: 1,
-              softWrap: true,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: Colors.black54,
-                fontSize: 12.5,
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
   Widget buildPartyName() {
-    return isKeyNotNull(_item.partyName)
+    return isKeyNotNull(_item.partyTypeName)
         ? Container(
             margin: EdgeInsets.fromLTRB(0.0, 0.0, 0.0, 0.0),
             child: Text(
-              _item.partyName,
+              _item.partyTypeName,
               maxLines: 1,
               softWrap: true,
               overflow: TextOverflow.ellipsis,
@@ -395,114 +337,6 @@ class PartiesItem extends StatelessWidget {
             ),
           )
         : Container();
-  }
-
-  Widget buildTotalDebit() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Container(
-          margin: EdgeInsets.fromLTRB(0.0, 3.0, 3.0, 0.0),
-          child: Text(
-            'Total Debit:',
-            textAlign: TextAlign.right,
-            maxLines: 1,
-            softWrap: true,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: Colors.black54,
-              fontSize: 12.5,
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-        ),
-        isKeyNotNullAndZero(_item.debit)
-            ? Container(
-                margin: EdgeInsets.fromLTRB(7.0, 3.0, 3.0, 0.0),
-                child: Text(
-                  'RS ' + oCcy.format(_item.debit).toString(),
-                  textAlign: TextAlign.right,
-                  maxLines: 1,
-                  softWrap: true,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              )
-            : Container(
-                margin: EdgeInsets.fromLTRB(7.0, 3.0, 3.0, 0.0),
-                child: Text(
-                  'RS 0',
-                  textAlign: TextAlign.right,
-                  maxLines: 1,
-                  softWrap: true,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-      ],
-    );
-  }
-
-  Widget buildTotalCredit() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        Container(
-          margin: EdgeInsets.fromLTRB(0.0, 3.0, 3.0, 0.0),
-          child: Text(
-            'Total Credit:',
-            textAlign: TextAlign.right,
-            maxLines: 1,
-            softWrap: true,
-            overflow: TextOverflow.ellipsis,
-            style: TextStyle(
-              color: Colors.black54,
-              fontSize: 12.5,
-              fontWeight: FontWeight.w400,
-            ),
-          ),
-        ),
-        isKeyNotNullAndZero(_item.credit)
-            ? Container(
-                margin: EdgeInsets.fromLTRB(3.0, 3.0, 3.0, 0.0),
-                child: Text(
-                  'RS ' + oCcy.format(_item.credit).toString(),
-                  textAlign: TextAlign.right,
-                  maxLines: 1,
-                  softWrap: true,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: Colors.green,
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              )
-            : Container(
-                margin: EdgeInsets.fromLTRB(3.0, 3.0, 3.0, 0.0),
-                child: Text(
-                  'RS 0',
-                  textAlign: TextAlign.right,
-                  maxLines: 1,
-                  softWrap: true,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: Colors.green,
-                    fontSize: 12.5,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-      ],
-    );
   }
 
   bool isKeyNotNull(Object param1) {
