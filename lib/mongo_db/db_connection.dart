@@ -8,9 +8,13 @@ void dbOpen() async {}
 
 Future<void> openDbConnection(
     String userName, String password, String databaseName) async {
-  db = await Db.create(
-      'mongodb+srv://$userName:$password@cluster0.k6lme.mongodb.net/$databaseName?retryWrites=true&w=majority');
-  await db.open();
+  try {
+    db = await Db.create(
+        'mongodb+srv://$userName:$password@cluster0.k6lme.mongodb.net/$databaseName?retryWrites=true&w=majority');
+    await db.open();
+  } catch (e) {
+    throw e;
+  }
 }
 //      'mongodb+srv://asif:cosoftcon123@cluster0.k6lme.mongodb.net/alkaram?retryWrites=true&w=majority');
 

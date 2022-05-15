@@ -57,28 +57,29 @@ class _SyncScreenState extends State<SyncScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  (lastSyncDate != null && lastSyncDate != '')
-                      ? Container(
-                          margin: EdgeInsets.fromLTRB(0.0, 0, 0.0, 20.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                  margin: EdgeInsets.fromLTRB(0.0, 0, 0.0, 0.0),
-                                  child: Text(
-                                    "Last Sync Date: ",
-                                    style: TextStyle(color: Colors.white),
-                                  )),
-                              Container(
-                                  margin: EdgeInsets.fromLTRB(4.0, 0, 0.0, 0.0),
-                                  child: Text(
-                                    lastSyncDate,
-                                    style: TextStyle(color: Colors.white),
-                                  )),
-                            ],
-                          ),
-                        )
-                      : Container(),
+                  if (lastSyncDate != null && lastSyncDate != '')
+                    Container(
+                      margin: EdgeInsets.fromLTRB(0.0, 0, 0.0, 20.0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                              margin: EdgeInsets.fromLTRB(0.0, 0, 0.0, 0.0),
+                              child: Text(
+                                "Last Sync Date: ",
+                                style: TextStyle(color: Colors.white),
+                              )),
+                          Container(
+                              margin: EdgeInsets.fromLTRB(4.0, 0, 0.0, 0.0),
+                              child: Text(
+                                lastSyncDate,
+                                style: TextStyle(color: Colors.white),
+                              )),
+                        ],
+                      ),
+                    )
+                  else
+                    Container(),
                   PartyTypeButton(viewHomeBtn: viewHomeBtn),
                   SizedBox(height: 15),
                   HomeButton(viewHomeBtn: viewHomeBtn),
