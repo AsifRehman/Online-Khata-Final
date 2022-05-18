@@ -29,6 +29,11 @@ class _SettingScreenState extends State<SettingScreen> {
 
         });
       }
+      else {
+        setState(() {
+          _passwordController.text = "demo";
+        });
+      }
     });
 
     getUserName().then((value) {
@@ -38,6 +43,11 @@ class _SettingScreenState extends State<SettingScreen> {
 
         });
       }
+      else {
+        setState(() {
+          _userNameController.text = "demo";
+        });
+      }
     });
 
     getDatabaseName().then((value) {
@@ -45,6 +55,11 @@ class _SettingScreenState extends State<SettingScreen> {
         setState(() {
           _databaseNameController.text = value;
 
+        });
+      }
+      else {
+        setState(() {
+          _databaseNameController.text = "demo";
         });
       }
     });
