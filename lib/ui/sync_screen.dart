@@ -12,6 +12,9 @@ import 'package:onlinekhata/ui/setting_screen.dart';
 import 'package:onlinekhata/utils/constants.dart';
 import 'package:onlinekhata/utils/custom_loader_dialog.dart';
 
+import 'add_new_party_screen.dart';
+import 'add_new_partytype_screen.dart';
+
 class SyncScreen extends StatefulWidget {
   static String id = 'sync_screen';
 
@@ -80,6 +83,10 @@ class _SyncScreenState extends State<SyncScreen> {
                     )
                   else
                     Container(),
+                  AddNewPartyTypeButton(viewHomeBtn: viewHomeBtn),
+                  SizedBox(height: 15),
+                  AddNewPartyButton(viewHomeBtn: viewHomeBtn),
+                  SizedBox(height: 15),
                   PartyTypeButton(viewHomeBtn: viewHomeBtn),
                   SizedBox(height: 15),
                   HomeButton(viewHomeBtn: viewHomeBtn),
@@ -301,6 +308,94 @@ class _SyncScreenState extends State<SyncScreen> {
       context: context,
       builder: (BuildContext context) =>
           CustomLoaderDialog(title: "Loading..."),
+    );
+  }
+}
+
+class AddNewPartyButton extends StatelessWidget {
+  const AddNewPartyButton({
+    Key key,
+    @required this.viewHomeBtn,
+  }) : super(key: key);
+
+  final bool viewHomeBtn;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => AddNewPartyScreen()));
+      },
+      child: Visibility(
+        visible: viewHomeBtn,
+        child: Container(
+          height: 40,
+          margin: EdgeInsets.fromLTRB(20.0, 0, 20.0, 0.0),
+          padding: const EdgeInsets.all(5.0),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.white),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset("assets/ic_home.png",
+                  width: 18, height: 18, color: Colors.white),
+              Container(
+                  margin: EdgeInsets.fromLTRB(5.0, 0, 0.0, 0.0),
+                  child: Text(
+                    'Add New Party',
+                    style: TextStyle(color: Colors.white),
+                  )),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class AddNewPartyTypeButton extends StatelessWidget {
+  const AddNewPartyTypeButton({
+    Key key,
+    @required this.viewHomeBtn,
+  }) : super(key: key);
+
+  final bool viewHomeBtn;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => AddNewPartyTypeScreen()));
+      },
+      child: Visibility(
+        visible: viewHomeBtn,
+        child: Container(
+          height: 40,
+          margin: EdgeInsets.fromLTRB(20.0, 0, 20.0, 0.0),
+          padding: const EdgeInsets.all(5.0),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.white),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset("assets/ic_home.png",
+                  width: 18, height: 18, color: Colors.white),
+              Container(
+                  margin: EdgeInsets.fromLTRB(5.0, 0, 0.0, 0.0),
+                  child: Text(
+                    'Add New Party Types',
+                    style: TextStyle(color: Colors.white),
+                  )),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

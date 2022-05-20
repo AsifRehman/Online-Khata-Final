@@ -124,7 +124,7 @@ class _PartyTypeScreenState extends State<PartyTypeScreen> {
       child: Row(
         children: <Widget>[
           Container(
-            width: width * 0.63,
+            width: width * 0.59,
             height: 37,
             margin: EdgeInsets.fromLTRB(12.0, 20.0, 5, 25.0),
             child: TextField(

@@ -104,6 +104,68 @@ class DbProvider {
           sum(debit) as debit, sum(credit) as credit, SUM(Bal) as Bal, max(ts) as ts 
           FROM PartyLeg GROUP BY partyID;""";
 
+  Future addNewPartyItem(String partyName, int partyTypeId, int debit, int credit) async {
+    final sqliteDb = await init(); //open database
+
+    int minusTs = await dbProvider.fetchPartyMinusTs();
+
+    final partyModel = PartyModel(
+      partyID: minusTs,
+      partyName: partyName,
+      partyTypeId: partyTypeId,
+      debit: debit,
+      credit: credit,
+      mobile1: null,
+      mobile2: null,
+      ts: minusTs,
+    );
+
+    sqliteDb.insert(
+      partyTableName,
+      partyModel.toMap(),
+    );
+  }
+
+  Future<int> fetchPartyMinusTs() async {
+    final sqliteDb = await init();
+    final result = await sqliteDb
+        .rawQuery("SELECT IFNULL(MIN(ts),0) as timestamp FROM Party");
+    if (result[0]["timestamp"] < 0) {
+      return result[0]["timestamp"] - 1;
+    } else {
+      return -1;
+    }
+  }
+ 
+  Future addNewPartyTypeItem(String partyType) async {
+    final sqliteDb = await init(); //open database
+
+    int minusTs = await dbProvider.fetchPartyTypeMinusTs();
+
+    final partyModel = PartyTypeModel(
+      partyTypeID: minusTs,
+      partyTypeName: partyType,
+      partyGroup: null,
+      ts: minusTs,
+    );
+
+    sqliteDb.insert(
+      partyTypeTableName,
+      partyModel.toMap(),
+    );
+  }
+
+  Future<int> fetchPartyTypeMinusTs() async {
+    final sqliteDb = await init();
+    final result = await sqliteDb
+        .rawQuery("SELECT IFNULL(MIN(ts),0) as timestamp FROM PartyType");
+    if (result[0]["timestamp"] < 0) {
+      return result[0]["timestamp"] - 1;
+    } else {
+      return -1;
+    }
+  }
+
   Future addPartyTypeItem(var collection) async {
     final sqliteDb = await init(); //open database
     bool isUpdated = false;

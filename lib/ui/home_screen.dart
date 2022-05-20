@@ -128,7 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Row(
         children: <Widget>[
           Container(
-            width: width * 0.63,
+            width: width * 0.59,
             height: 37,
             margin: EdgeInsets.fromLTRB(12.0, 20.0, 5, 25.0),
             child: TextField(
@@ -138,10 +138,14 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               controller: searchController,
               autofocus: false,
+              autocorrect: false,
               textInputAction: TextInputAction.done,
               onSubmitted: (v) {
+ 
+              },
+              onChanged: (v) {
                 if (v.length > 0) {
-                  showLoaderDialog(context);
+                  //showLoaderDialog(context);
 
                   setState(() {
                     loading = true;
@@ -152,7 +156,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       .then((value) {
                     partyModelList = value;
 
-                    Navigator.pop(context);
+                    //Navigator.pop(context);
 
                     setState(() {
                       loading = false;
@@ -160,7 +164,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   });
                 }
               },
-              onChanged: (v) {},
               decoration: InputDecoration(
                   suffixIcon: IconButton(
                     onPressed: searchController.clear,
